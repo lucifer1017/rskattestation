@@ -1,3 +1,4 @@
 {
-  "AttestationGateModule#AttestationGate": "0xe022df9f57b611675B6b713307E7563D0c9abC74"
+  "AttestationGateModule#AttestationGate": "0xe022df9f57b611675B6b713307E7563D0c9abC74",
+  "GatedNFTMinterModule#GatedNFTMinter": "0x5e515B34A39c00Ba5C6203606CBc12bFf11fe010"
 }

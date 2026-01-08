@@ -87,6 +87,20 @@ export async function issueAttestationAndRegister(
     },
   });
 
+  // Get transaction hash from the transaction object
+  // EAS SDK returns a transaction response object
+  let txHashAttest: Hex;
+  if (typeof tx === "string") {
+    txHashAttest = tx as Hex;
+  } else if ((tx as any)?.hash) {
+    txHashAttest = (tx as any).hash as Hex;
+  } else if ((tx as any)?.txHash) {
+    txHashAttest = (tx as any).txHash as Hex;
+  } else {
+    // Fallback: try to get hash from transaction response
+    txHashAttest = ((tx as any)?.transaction?.hash || "0x0") as Hex;
+  }
+
   const uidString = await tx.wait();
   const uid = uidString as Hex;
 
@@ -98,7 +112,7 @@ export async function issueAttestationAndRegister(
 
   return {
     uid,
-    txHashAttest: tx as unknown as string,
+    txHashAttest,
     txHashRegister,
   };
 }

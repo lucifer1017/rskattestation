@@ -1,12 +1,13 @@
-import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
 
+// Load environment variables FIRST, before any other imports
+dotenv.config();
+
+import express from "express";
+import cors from "cors";
 import { loadEnv } from "./config/env";
 import { router as healthRouter } from "./routes/health";
 import { router as attestationsRouter } from "./routes/attestations";
-
-dotenv.config();
 const env = loadEnv();
 
 const app = express();

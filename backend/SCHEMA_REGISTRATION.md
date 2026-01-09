@@ -98,3 +98,6 @@ After schemas are registered and `.env` is updated:
 3. ✅ Integrate with frontend
 4. ✅ Test token-gated contracts (GatedNFTMinter, GatedVault)
 
+
+
+

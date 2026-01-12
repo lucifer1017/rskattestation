@@ -45,7 +45,6 @@ router.post("/issue", async (req, res) => {
     res.status(500).json({
       error: "Failed to issue attestation",
       details: error.message ?? String(error),
-      // Include more context for debugging
       ...(error.code && { code: error.code }),
     });
   }
@@ -90,5 +89,3 @@ router.get("/:address/status", async (req, res) => {
     });
   }
 });
-
-

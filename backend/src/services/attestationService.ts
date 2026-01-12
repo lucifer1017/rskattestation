@@ -82,7 +82,6 @@ export async function issueAttestationAndRegister(
   const expirationTime = BigInt(0);
   const revocable = true;
 
-  // Send attestation transaction
   console.log("Sending attestation transaction...");
   const tx = await eas.attest({
     schema: schemaUID,
@@ -98,10 +97,8 @@ export async function issueAttestationAndRegister(
   console.log("Transaction object received, type:", typeof tx);
   console.log("Transaction object keys:", Object.keys(tx));
   
-  // Extract transaction hash from receipt
   let txHashAttest: string | null = null;
   
-  // Check tx.receipt.hash (EAS SDK structure)
   if (tx && typeof tx === "object" && "receipt" in tx) {
     const receipt = (tx as any).receipt;
     if (receipt && typeof receipt === "object" && "hash" in receipt) {
@@ -113,7 +110,6 @@ export async function issueAttestationAndRegister(
     }
   }
   
-  // Fallback: check tx.hash directly
   if (!txHashAttest && tx && typeof tx === "object" && "hash" in tx) {
     const hashValue = (tx as any).hash;
     if (typeof hashValue === "string" && hashValue.startsWith("0x")) {
@@ -128,7 +124,6 @@ export async function issueAttestationAndRegister(
 
   console.log("Waiting for attestation transaction confirmation...");
   
-  // Wait for confirmation and get the receipt with UID
   let uidResult: any;
   try {
     uidResult = await tx.wait();
@@ -144,9 +139,7 @@ export async function issueAttestationAndRegister(
   console.log("Wait result type:", typeof uidResult);
   console.log("Wait result:", uidResult);
 
-  // If we still don't have the hash, try to extract from wait result or receipt
   if (!txHashAttest) {
-    // Try common receipt patterns
     if (typeof uidResult === "object" && uidResult !== null) {
       const receiptLike = uidResult as any;
       if ("transactionHash" in receiptLike && receiptLike.transactionHash) {
@@ -178,11 +171,9 @@ export async function issueAttestationAndRegister(
 
   console.log("Attestation transaction confirmed with hash:", txHashAttest);
 
-  // Extract UID - EAS SDK returns UID as string from wait()
   const uid: string = typeof uidResult === "string" ? uidResult : toHexString(uidResult);
   console.log("Extracted attestation UID:", uid);
 
-  // Register attestation on-chain
   const txHashRegister = await registerAttestationOnChain({
     user: params.address,
     attestationUID: uid as Hex,

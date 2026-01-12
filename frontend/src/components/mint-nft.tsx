@@ -22,7 +22,6 @@ export function MintNFT() {
     loading: boolean;
   }>({ hasValid: false, loading: true });
 
-  // Read contract data
   const { data: mintPrice, isLoading: priceLoading } = useReadContract({
     address: CONTRACT_ADDRESSES.GatedNFTMinter,
     abi: GATED_NFT_MINTER_ABI,
@@ -61,7 +60,6 @@ export function MintNFT() {
     functionName: "maxSupply",
   });
 
-  // Write contract (mint)
   const {
     writeContract,
     data: hash,
@@ -75,7 +73,6 @@ export function MintNFT() {
       hash,
     });
 
-  // Check attestation status
   const checkAttestation = useCallback(async () => {
     if (!address) {
       setAttestationStatus({ hasValid: false, loading: false });
@@ -92,7 +89,6 @@ export function MintNFT() {
     }
   }, [address]);
 
-  // Update mint state based on data
   useEffect(() => {
     if (!isConnected || !address) {
       setMintState({ status: "idle" });
@@ -128,14 +124,12 @@ export function MintNFT() {
     attestationStatus.hasValid,
   ]);
 
-  // Check attestation on mount and when address changes
   useEffect(() => {
     if (isConnected && address) {
       checkAttestation();
     }
   }, [isConnected, address, checkAttestation]);
 
-  // Handle mint transaction states
   useEffect(() => {
     if (isMintPending || isConfirming) {
       setMintState({ status: "minting" });
@@ -191,7 +185,6 @@ export function MintNFT() {
     );
   }
 
-  // Loading state
   if (mintState.status === "checking" || mintState.status === "idle") {
     return (
       <div className="flex items-center justify-center gap-3 py-8">
@@ -219,14 +212,12 @@ export function MintNFT() {
     );
   }
 
-  // Ready state
   if (mintState.status === "ready") {
     const canMint = mintState.hasAttestation && !mintState.hasMinted;
     const isSoldOut = maxSupply && currentSupply && currentSupply >= maxSupply;
 
     return (
       <div className="space-y-4">
-        {/* NFT Info */}
         <div className="p-4 bg-rootstock-gray-800/50 rounded-xl border border-rootstock-gray-700 space-y-3">
           <div className="flex justify-between items-center text-sm">
             <span className="text-white/60">Mint Price</span>
@@ -268,7 +259,6 @@ export function MintNFT() {
           )}
         </div>
 
-        {/* Status Messages */}
         {!mintState.hasAttestation && (
           <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
             <div className="flex items-start gap-3">
@@ -355,7 +345,6 @@ export function MintNFT() {
           </div>
         )}
 
-        {/* Mint Button */}
         <button
           onClick={handleMint}
           disabled={!canMint || isSoldOut || isMintPending || isConfirming}
@@ -419,7 +408,6 @@ export function MintNFT() {
     );
   }
 
-  // Minting state
   if (mintState.status === "minting") {
     return (
       <div className="space-y-4">
@@ -460,7 +448,6 @@ export function MintNFT() {
     );
   }
 
-  // Success state
   if (mintState.status === "success") {
     return (
       <div className="space-y-4">
@@ -522,7 +509,6 @@ export function MintNFT() {
     );
   }
 
-  // Error state
   if (mintState.status === "error") {
     return (
       <div className="space-y-4">

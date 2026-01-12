@@ -11,7 +11,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Header */}
       <header className="border-b border-card-border bg-rootstock-gray-900/50 backdrop-blur-sm sticky top-0 z-50 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div>
@@ -42,7 +41,6 @@ export default function Home() {
           </div>
         ) : (
           <div className="space-y-10">
-            {/* Welcome Section */}
             <div className="relative bg-card-bg border border-card-border rounded-2xl p-8 overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-rootstock-green/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
               <div className="relative">
@@ -56,9 +54,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Main Grid - Request Attestation + Sidebar */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Request Attestation - Main Card */}
               <div className="lg:col-span-2 relative bg-card-bg border border-card-border rounded-2xl p-6 overflow-hidden">
                 <div className="absolute top-0 left-0 w-48 h-48 bg-rootstock-green/5 rounded-full blur-3xl -translate-y-1/2 -translate-x-1/2"></div>
                 <div className="relative">
@@ -79,9 +75,7 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Sidebar - Status & Mint Cards */}
               <div className="space-y-6">
-                {/* Check Status Card */}
                 <div className="group relative bg-card-bg border border-card-border rounded-2xl p-6 transition-all duration-300 hover:border-rootstock-orange/50 hover:shadow-[0_0_30px_rgba(255,102,0,0.15)]">
                   <div className="absolute inset-0 bg-gradient-to-br from-rootstock-orange/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <div className="relative">
@@ -100,7 +94,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Mint NFT Card */}
                 <div className="group relative bg-card-bg border border-card-border rounded-2xl p-6 transition-all duration-300 hover:border-rootstock-green/50 hover:shadow-[0_0_30px_rgba(0,170,68,0.15)]">
                   <div className="absolute inset-0 bg-gradient-to-br from-rootstock-green/5 to-rootstock-orange/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <div className="relative">
@@ -117,7 +110,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Backend Status - Compact */}
                 <div className="bg-card-bg border border-card-border rounded-2xl p-4">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-rootstock-gray-800 flex items-center justify-center shrink-0">

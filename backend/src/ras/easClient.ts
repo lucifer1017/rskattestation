@@ -20,5 +20,3 @@ export function getEAS(): EAS {
   easInstance = eas;
   return easInstance;
 }
-
-

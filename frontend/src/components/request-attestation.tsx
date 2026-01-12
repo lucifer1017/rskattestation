@@ -86,7 +86,6 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
     );
   }
 
-  // Success state
   if (requestState.status === "success") {
     return (
       <div className="space-y-6">
@@ -203,7 +202,6 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Wallet Address (read-only) */}
       <div className="space-y-2">
         <label className="block text-sm font-medium text-white/80">
           Wallet Address
@@ -281,7 +279,6 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
         </p>
       </div>
 
-      {/* Optional Statement */}
       <div className="space-y-2">
         <label className="block text-sm font-medium text-white/80">
           Statement{" "}
@@ -341,7 +338,6 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
         </div>
       )}
 
-      {/* Submit Button */}
       <button
         type="submit"
         disabled={requestState.status === "loading"}
@@ -390,7 +386,6 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
         )}
       </button>
 
-      {/* Info Note */}
       <p className="text-xs text-white/40 text-center">
         This will issue an attestation via the backend and register it on-chain.
         <br />

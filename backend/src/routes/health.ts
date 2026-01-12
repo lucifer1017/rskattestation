@@ -15,5 +15,3 @@ router.get("/", async (_req, res) => {
     res.status(500).json({ status: "error", error: "Invalid configuration" });
   }
 });
-
-

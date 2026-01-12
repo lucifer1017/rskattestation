@@ -44,7 +44,6 @@ export function CheckStatus() {
     }
   }, [address, schemaType]);
 
-  // Auto-check when address or schemaType changes
   useEffect(() => {
     if (isConnected && address) {
       checkStatus();
@@ -63,7 +62,6 @@ export function CheckStatus() {
 
   return (
     <div className="space-y-4">
-      {/* Schema Type Selection */}
       <div className="space-y-2">
         <label className="block text-sm font-medium text-white/80">
           Attestation Type
@@ -96,7 +94,6 @@ export function CheckStatus() {
         </div>
       </div>
 
-      {/* Status Display */}
       {statusState.status === "loading" && (
         <div className="flex items-center justify-center gap-3 py-8">
           <svg

@@ -33,22 +33,19 @@ const envSchema = z.object({
 export type Env = z.infer<typeof envSchema>;
 
 export function loadEnv(): Env {
-  // Helper to safely get and trim env var (returns empty string if missing, for Zod validation)
   const getEnv = (key: string, required: boolean = true): string => {
     const value = process.env[key];
     if (!value) {
       if (required) {
-        return ""; // Return empty string so Zod can validate and show proper error
+        return "";
       }
       return "";
     }
     const trimmed = value.trim();
-    // Remove quotes if present (common .env mistake)
     const unquoted = trimmed.replace(/^["']|["']$/g, "");
     return unquoted;
   };
 
-  // Debug: Check for common variable name variations
   const privateKeyVariations = [
     "BACKEND_PRIVATE_KEY",
     "PRIVATE_KEY",
@@ -62,7 +59,6 @@ export function loadEnv(): Env {
     );
   }
 
-  // Convert empty strings to undefined for optional fields
   const rawEnv = {
     PORT: process.env.PORT,
     RSK_RPC_URL:
@@ -87,7 +83,6 @@ export function loadEnv(): Env {
   if (!parsed.success) {
     console.error("Invalid environment configuration:", parsed.error.format());
     
-    // Add helpful debug info for BACKEND_PRIVATE_KEY
     const privateKeyValue = rawEnv.BACKEND_PRIVATE_KEY;
     if (!privateKeyValue) {
       console.error("\n❌ BACKEND_PRIVATE_KEY is missing or empty in .env file");
@@ -115,5 +110,3 @@ export function loadEnv(): Env {
 
   return normalized;
 }
-
-

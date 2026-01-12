@@ -25,14 +25,12 @@ export function WalletConnect() {
     );
   }
 
-  // Deduplicate connectors by both ID and name to avoid duplicates
   const seenIds = new Set<string>();
   const seenNames = new Set<string>();
   const uniqueConnectors = connectors.filter((connector) => {
     const id = connector.id;
     const name = connector.name?.toLowerCase() || "";
     
-    // Skip if we've seen this ID or name before
     if (seenIds.has(id) || (name && seenNames.has(name))) {
       return false;
     }
@@ -42,7 +40,6 @@ export function WalletConnect() {
     return true;
   });
 
-  // Prefer MetaMask connector if available (check by ID first, then name)
   const metaMaskConnector = uniqueConnectors.find(
     (c) =>
       c.id === "io.metamask" ||
@@ -52,7 +49,6 @@ export function WalletConnect() {
       c.name?.toLowerCase() === "metamask"
   );
   
-  // Use MetaMask if found, otherwise use first available connector
   const connectorToUse = metaMaskConnector || uniqueConnectors[0];
 
   if (!connectorToUse) {
@@ -63,7 +59,6 @@ export function WalletConnect() {
     );
   }
 
-  // Always show "Connect MetaMask" if it's a MetaMask-like connector, otherwise use connector name
   const buttonText = 
     metaMaskConnector || connectorToUse.name?.toLowerCase().includes("metamask")
       ? "Connect MetaMask"

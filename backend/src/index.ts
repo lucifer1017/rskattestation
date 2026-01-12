@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 
-// Load environment variables FIRST, before any other imports
 dotenv.config();
 
 import express from "express";
@@ -23,5 +22,3 @@ const port = env.PORT;
 app.listen(port, () => {
   console.log(`Backend listening on port ${port}`);
 });
-
-

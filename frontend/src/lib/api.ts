@@ -24,9 +24,6 @@ export interface AttestationStatusResponse {
   hasValid: boolean;
 }
 
-/**
- * Issue an attestation via backend
- */
 export async function issueAttestation(
   data: IssueAttestationRequest
 ): Promise<IssueAttestationResponse> {
@@ -52,9 +49,6 @@ export async function issueAttestation(
   return response.json();
 }
 
-/**
- * Get attestation status for an address
- */
 export async function getAttestationStatus(
   address: `0x${string}`,
   schemaType: SchemaType = "nft"

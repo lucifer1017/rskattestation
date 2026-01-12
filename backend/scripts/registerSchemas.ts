@@ -5,7 +5,6 @@ import { SchemaRegistry } from "@ethereum-attestation-service/eas-sdk";
 import { JsonRpcProvider, Wallet, getAddress, solidityPackedKeccak256 } from "ethers";
 import { loadEnv } from "../src/config/env";
 
-// Compute schema UID (same as EAS contract)
 function computeSchemaUID(schema: string, resolver: string, revocable: boolean): string {
   return solidityPackedKeccak256(
     ["string", "address", "bool"],
@@ -19,15 +18,12 @@ async function registerSchemas() {
   const provider = new JsonRpcProvider(env.RSK_RPC_URL);
   const wallet = new Wallet(env.BACKEND_PRIVATE_KEY, provider);
 
-  // Schema Registry addresses - use getAddress() to ensure proper checksum
   const SCHEMA_REGISTRY_TESTNET = getAddress("0x679c62956cd2801ababf80e9d430f18859eea2d5");
   const SCHEMA_REGISTRY_MAINNET = getAddress("0xef29675d82cc5967069d6d9c17f2719f67728f5b");
 
-  // Determine network
   const isMainnet = env.RSK_RPC_URL.includes("mainnet") || env.RSK_RPC_URL.includes("rskmain");
   const schemaRegistryAddress = isMainnet ? SCHEMA_REGISTRY_MAINNET : SCHEMA_REGISTRY_TESTNET;
 
-  // Resolver address (zero = no resolver)
   const resolverAddress = getAddress("0x0000000000000000000000000000000000000000");
 
   console.log(`\n📝 Schema Registry: ${schemaRegistryAddress}`);
@@ -38,7 +34,6 @@ async function registerSchemas() {
   const schemaRegistry = new SchemaRegistry(schemaRegistryAddress);
   schemaRegistry.connect(wallet);
 
-  // Define schemas - both use same simple schema
   const schemaDefinition = "string statement";
   const schemas = [
     { name: "NFT Gating Schema", envVar: "NFT_SCHEMA_UID" },
@@ -51,12 +46,10 @@ async function registerSchemas() {
     console.log(`\n📋 ${schema.name}`);
     console.log(`   Definition: "${schemaDefinition}"`);
 
-    // Compute expected UID
     const expectedUID = computeSchemaUID(schemaDefinition, resolverAddress, true);
     console.log(`   Expected UID: ${expectedUID}`);
 
     try {
-      // Check if schema already exists
       try {
         const existing = await schemaRegistry.getSchema({ uid: expectedUID });
         if (existing && existing.uid) {
@@ -66,13 +59,11 @@ async function registerSchemas() {
           continue;
         }
       } catch (e: any) {
-        // Schema doesn't exist, proceed with registration
         if (!e.message?.includes("NotFound") && !e.message?.includes("not found")) {
           console.log(`   ⚠️  Could not check existing schema: ${e.message}`);
         }
       }
 
-      // Register schema
       console.log(`   ⏳ Registering...`);
       const tx = await schemaRegistry.register({
         schema: schemaDefinition,
@@ -88,13 +79,11 @@ async function registerSchemas() {
 
       results.push({ name: schema.name, uid, envVar: schema.envVar });
     } catch (error: any) {
-      // Decode error
       const errorMsg = error.message || String(error);
       const errorData = error.data || error.reason || "";
       
       console.error(`   ❌ Error: ${errorMsg}`);
       
-      // Check for specific error patterns
       if (
         errorMsg.includes("AlreadyExists") ||
         errorMsg.includes("already exists") ||
@@ -114,7 +103,6 @@ async function registerSchemas() {
     }
   }
 
-  // Summary
   console.log(`\n${"=".repeat(60)}`);
   console.log(`\n🎉 SUMMARY - Add these to your .env file:\n`);
   for (const r of results) {

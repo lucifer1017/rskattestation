@@ -1,13 +1,7 @@
-/**
- * Wagmi configuration for Rootstock Testnet
- */
-
 import { http, createConfig } from "wagmi";
 import { defineChain } from "viem";
 import { injected, walletConnect } from "wagmi/connectors";
 
-// Rootstock Testnet chain configuration
-// Chain ID: 31
 const rootstockTestnetConfig = defineChain({
   id: 31,
   name: "Rootstock Testnet",
@@ -38,7 +32,6 @@ const rootstockTestnetConfig = defineChain({
   },
 });
 
-// Wagmi config
 export const wagmiConfig = createConfig({
   chains: [rootstockTestnetConfig],
   connectors: [

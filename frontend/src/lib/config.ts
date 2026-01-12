@@ -1,7 +1,3 @@
-/**
- * Frontend configuration from environment variables
- */
-
 export const config = {
   rskRpcUrl:
     process.env.NEXT_PUBLIC_RSK_RPC_URL ||

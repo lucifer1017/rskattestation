@@ -8,7 +8,6 @@ import {
 import { privateKeyToAccount } from "viem/accounts";
 import { loadEnv } from "../config/env";
 
-// Minimal ABI for AttestationGate
 const ATTESTATION_GATE_ABI = [
   {
     type: "function",
@@ -111,5 +110,3 @@ export async function getUserAttestationUID(user: Address): Promise<Hex> {
   });
   return result as Hex;
 }
-
-

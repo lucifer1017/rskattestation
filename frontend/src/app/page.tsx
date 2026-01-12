@@ -2,6 +2,8 @@
 
 import { WalletConnect } from "@/components/wallet-connect";
 import { RequestAttestation } from "@/components/request-attestation";
+import { CheckStatus } from "@/components/check-status";
+import { MintNFT } from "@/components/mint-nft";
 import { useAccount } from "wagmi";
 
 export default function Home() {
@@ -35,11 +37,8 @@ export default function Home() {
               Connect Your Wallet
             </h2>
             <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto">
-              Connect your wallet to get started with attestations on Rootstock
+              Use the connect button in the header above to get started with attestations on Rootstock
             </p>
-            <div className="flex justify-center">
-              <WalletConnect />
-            </div>
           </div>
         ) : (
           <div className="space-y-10">
@@ -97,12 +96,7 @@ export default function Home() {
                     <p className="text-white/60 text-sm mb-4 leading-relaxed">
                       View your attestation status and validity
                     </p>
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-rootstock-gray-800/50 rounded-lg border border-rootstock-gray-700">
-                      <span className="w-2 h-2 bg-rootstock-orange rounded-full animate-pulse"></span>
-                      <p className="text-xs text-white/50 font-medium">
-                        Coming soon...
-                      </p>
-                    </div>
+                    <CheckStatus />
                   </div>
                 </div>
 
@@ -119,19 +113,14 @@ export default function Home() {
                     <p className="text-white/60 text-sm mb-4 leading-relaxed">
                       Mint a gated NFT (requires valid attestation)
                     </p>
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-rootstock-gray-800/50 rounded-lg border border-rootstock-gray-700">
-                      <span className="w-2 h-2 bg-rootstock-orange rounded-full animate-pulse"></span>
-                      <p className="text-xs text-white/50 font-medium">
-                        Coming soon...
-                      </p>
-                    </div>
+                    <MintNFT />
                   </div>
                 </div>
 
                 {/* Backend Status - Compact */}
                 <div className="bg-card-bg border border-card-border rounded-2xl p-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-rootstock-gray-800 flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-rootstock-gray-800 flex items-center justify-center shrink-0">
                       <svg
                         className="w-4 h-4 text-rootstock-green"
                         fill="none"

@@ -25,19 +25,58 @@ export function WalletConnect() {
     );
   }
 
+  // Deduplicate connectors by both ID and name to avoid duplicates
+  const seenIds = new Set<string>();
+  const seenNames = new Set<string>();
+  const uniqueConnectors = connectors.filter((connector) => {
+    const id = connector.id;
+    const name = connector.name?.toLowerCase() || "";
+    
+    // Skip if we've seen this ID or name before
+    if (seenIds.has(id) || (name && seenNames.has(name))) {
+      return false;
+    }
+    
+    seenIds.add(id);
+    if (name) seenNames.add(name);
+    return true;
+  });
+
+  // Prefer MetaMask connector if available (check by ID first, then name)
+  const metaMaskConnector = uniqueConnectors.find(
+    (c) =>
+      c.id === "io.metamask" ||
+      c.id === "metaMaskSDK" ||
+      c.id === "injected" ||
+      c.name?.toLowerCase().includes("metamask") ||
+      c.name?.toLowerCase() === "metamask"
+  );
+  
+  // Use MetaMask if found, otherwise use first available connector
+  const connectorToUse = metaMaskConnector || uniqueConnectors[0];
+
+  if (!connectorToUse) {
+    return (
+      <div className="px-6 py-2.5 bg-rootstock-gray-800 text-white/60 rounded-xl font-semibold">
+        No wallet available
+      </div>
+    );
+  }
+
+  // Always show "Connect MetaMask" if it's a MetaMask-like connector, otherwise use connector name
+  const buttonText = 
+    metaMaskConnector || connectorToUse.name?.toLowerCase().includes("metamask")
+      ? "Connect MetaMask"
+      : `Connect ${connectorToUse.name || "Wallet"}`;
+
   return (
-    <div className="flex gap-3">
-      {connectors.map((connector) => (
-        <button
-          key={connector.id}
-          onClick={() => connect({ connector })}
-          disabled={isPending}
-          className="px-6 py-2.5 bg-gradient-to-r from-rootstock-green to-rootstock-green-light text-black rounded-xl font-semibold hover:from-rootstock-green-light hover:to-rootstock-green shadow-lg shadow-rootstock-green/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
-        >
-          {isPending ? "Connecting..." : `Connect ${connector.name}`}
-        </button>
-      ))}
-    </div>
+    <button
+      onClick={() => connect({ connector: connectorToUse })}
+      disabled={isPending}
+      className="px-6 py-2.5 bg-gradient-to-r from-rootstock-green to-rootstock-green-light text-black rounded-xl font-semibold hover:from-rootstock-green-light hover:to-rootstock-green shadow-lg shadow-rootstock-green/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
+    >
+      {isPending ? "Connecting..." : buttonText}
+    </button>
   );
 }
 

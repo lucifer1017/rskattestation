@@ -4,7 +4,7 @@
 
 import { http, createConfig } from "wagmi";
 import { defineChain } from "viem";
-import { metaMask, walletConnect } from "wagmi/connectors";
+import { injected, walletConnect } from "wagmi/connectors";
 
 // Rootstock Testnet chain configuration
 // Chain ID: 31
@@ -42,10 +42,8 @@ const rootstockTestnetConfig = defineChain({
 export const wagmiConfig = createConfig({
   chains: [rootstockTestnetConfig],
   connectors: [
-    metaMask({
-      dappMetadata: {
-        name: "Rootstock Attestation Module",
-      },
+    injected({
+      target: "metaMask",
     }),
     ...(process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
       ? [

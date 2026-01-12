@@ -1,25 +1,33 @@
 @import "tailwindcss";
 
 :root {
-  /* Rootstock Brand Colors */
-  --rootstock-green: #009933;
+  /* Rootstock Brand Colors - Official Palette */
+  --rootstock-green: #00AA44;
+  --rootstock-green-light: #00D855;
+  --rootstock-green-dark: #008833;
+  --rootstock-orange: #FF6600;
+  --rootstock-orange-light: #FF8833;
+  --rootstock-orange-dark: #CC4400;
   --rootstock-black: #000000;
   --rootstock-white: #ffffff;
-  --rootstock-orange: #ff9000;
-  --rootstock-pink: #ff0099;
-  --rootstock-purple: #9d4edd;
-  --rootstock-teal: #00cc99;
-  --rootstock-off-white: #faf9f5;
-  --rootstock-brown-dark: #48362a;
-  --rootstock-brown-medium: #4b3a2f;
+  --rootstock-gray-900: #0a0a0a;
+  --rootstock-gray-800: #1a1a1a;
+  --rootstock-gray-700: #2a2a2a;
+  --rootstock-gray-600: #404040;
+  --rootstock-gray-500: #666666;
 
-  /* Dark mode (default for Rootstock) */
+  /* Theme Colors */
   --background: #000000;
+  --background-gradient: linear-gradient(180deg, #000000 0%, #0a0a0a 100%);
   --foreground: #ffffff;
-  --card-bg: #1a1a1a;
-  --card-border: #ffffff;
+  --card-bg: #0f0f0f;
+  --card-bg-hover: #1a1a1a;
+  --card-border: rgba(255, 255, 255, 0.1);
+  --card-border-hover: rgba(0, 170, 68, 0.5);
   --accent-primary: var(--rootstock-green);
   --accent-secondary: var(--rootstock-orange);
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --text-secondary: rgba(255, 255, 255, 0.8);
 }
 
 @theme inline {
@@ -28,17 +36,44 @@
   --color-card-bg: var(--card-bg);
   --color-card-border: var(--card-border);
   --color-rootstock-green: var(--rootstock-green);
+  --color-rootstock-green-light: var(--rootstock-green-light);
+  --color-rootstock-green-dark: var(--rootstock-green-dark);
   --color-rootstock-orange: var(--rootstock-orange);
-  --color-rootstock-pink: var(--rootstock-pink);
-  --color-rootstock-purple: var(--rootstock-purple);
-  --color-rootstock-teal: var(--rootstock-teal);
+  --color-rootstock-orange-light: var(--rootstock-orange-light);
+  --color-rootstock-orange-dark: var(--rootstock-orange-dark);
+  --color-rootstock-gray-900: var(--rootstock-gray-900);
+  --color-rootstock-gray-800: var(--rootstock-gray-800);
+  --color-rootstock-gray-700: var(--rootstock-gray-700);
+  --color-rootstock-gray-600: var(--rootstock-gray-600);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--background);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(0, 170, 68, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(255, 102, 0, 0.05) 0px, transparent 50%);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--rootstock-gray-900);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--rootstock-gray-700);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--rootstock-gray-600);
 }

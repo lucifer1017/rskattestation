@@ -36,9 +36,17 @@ router.post("/issue", async (req, res) => {
     });
   } catch (error: any) {
     console.error("Error issuing attestation:", error);
+    console.error("Error stack:", error.stack);
+    console.error("Error details:", {
+      message: error.message,
+      name: error.name,
+      code: error.code,
+    });
     res.status(500).json({
       error: "Failed to issue attestation",
       details: error.message ?? String(error),
+      // Include more context for debugging
+      ...(error.code && { code: error.code }),
     });
   }
 });

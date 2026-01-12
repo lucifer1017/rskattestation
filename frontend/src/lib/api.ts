@@ -42,7 +42,11 @@ export async function issueAttestation(
     const error = await response.json().catch(() => ({
       error: "Failed to issue attestation",
     }));
-    throw new Error(error.error || error.details || "Failed to issue attestation");
+    // Include both error and details for better debugging
+    const errorMessage = error.details 
+      ? `${error.error || "Failed to issue attestation"}: ${error.details}`
+      : error.error || error.details || "Failed to issue attestation";
+    throw new Error(errorMessage);
   }
 
   return response.json();

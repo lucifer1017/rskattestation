@@ -1,36 +1,452 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend - Rootstock Attestation Module
 
-## Getting Started
+Next.js frontend application for interacting with Rootstock Attestation Service (RAS) and token-gated contracts.
 
-First, run the development server:
+## Overview
+
+This frontend provides a user-friendly interface to:
+- Connect Web3 wallets (MetaMask, WalletConnect)
+- Request attestations for NFT gating or Vault access
+- Check attestation status and validity
+- Mint gated NFTs (requires valid attestation)
+- View transaction history and explorer links
+
+## Prerequisites
+
+- Node.js 18+ and npm
+- MetaMask or compatible Web3 wallet
+- Backend service running (see `../backend/README.md`)
+- Deployed smart contracts (see `../contracts/README.md`)
+
+## Quick Start
+
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure Environment
+
+Create a `.env.local` file in the `frontend/` directory:
+
+```env
+# Backend API URL
+NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
+
+# Rootstock Network
+NEXT_PUBLIC_RSK_RPC_URL=https://public-node.testnet.rsk.co
+
+# Contract Addresses (optional - defaults provided)
+NEXT_PUBLIC_ATTESTATION_GATE_ADDRESS=0xe022df9f57b611675B6b713307E7563D0c9abC74
+NEXT_PUBLIC_GATED_NFT_MINTER_ADDRESS=0x5e515B34A39c00Ba5C6203606CBc12bFf11fe010
+
+# Schema UIDs (optional - from backend registration)
+NEXT_PUBLIC_NFT_SCHEMA_UID=0x...
+NEXT_PUBLIC_VAULT_SCHEMA_UID=0x...
+
+# WalletConnect (optional)
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id
+```
+
+### 3. Start Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application will be available at `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 4. Build for Production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+## Features
 
-To learn more about Next.js, take a look at the following resources:
+### Wallet Connection
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **MetaMask Integration**: Primary wallet connector with automatic detection
+- **WalletConnect Support**: Optional mobile wallet support
+- **Connection Status**: Real-time wallet connection state
+- **Address Display**: Formatted address display in header
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Request Attestation
 
-## Deploy on Vercel
+- **Schema Selection**: Choose between NFT Gating or Vault Access
+- **Custom Statements**: Optional statement field for attestation
+- **Transaction Tracking**: View both attestation and registration transaction hashes
+- **Explorer Links**: Direct links to Rootstock Explorer for transactions
+- **Success Feedback**: Clear UI feedback on successful attestation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Check Status
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Auto-Check**: Automatically checks status when wallet connects
+- **Schema-Specific**: Check status for NFT or Vault schemas
+- **Real-Time Updates**: Refresh button to check latest status
+- **Visual Indicators**: Clear valid/invalid status display
+
+### Mint NFT
+
+- **Attestation Validation**: Checks attestation before allowing mint
+- **Supply Display**: Shows current supply vs max supply
+- **Price Display**: Shows mint price in tRBTC
+- **Mint Status**: Tracks if user has already minted
+- **Balance Display**: Shows user's NFT balance
+- **Auto-Refresh**: Automatically updates UI after successful mint
+
+## Components
+
+### WalletConnect
+
+**Location:** `src/components/wallet-connect.tsx`
+
+Handles wallet connection and disconnection. Prioritizes MetaMask if available, otherwise shows first available connector.
+
+**Features:**
+- Deduplicates connectors by ID and name
+- Single "Connect MetaMask" button
+- Displays connected address
+- Disconnect functionality
+
+### RequestAttestation
+
+**Location:** `src/components/request-attestation.tsx`
+
+Form component for requesting attestations from the backend.
+
+**Features:**
+- Schema type selection (NFT/Vault)
+- Optional statement field
+- Loading states
+- Success/error handling
+- Transaction hash display with explorer links
+- Copy-to-clipboard for attestation UID
+
+### CheckStatus
+
+**Location:** `src/components/check-status.tsx`
+
+Component for checking attestation validity.
+
+**Features:**
+- Auto-checks on wallet connection
+- Schema type selection
+- Manual refresh button
+- Visual status indicators
+- Error handling
+
+### MintNFT
+
+**Location:** `src/components/mint-nft.tsx`
+
+Component for minting gated NFTs.
+
+**Features:**
+- Reads contract state (price, supply, hasMinted, balance)
+- Validates attestation before minting
+- Transaction handling with Wagmi hooks
+- Auto-refresh after successful mint
+- Supply and balance display
+- Eligibility status
+
+## How It Works
+
+### Architecture
+
+```
+User Browser
+    ↓
+Next.js App (React)
+    ↓
+├─→ Wagmi (Web3 Hooks)
+│   └─→ MetaMask / WalletConnect
+│       └─→ Rootstock Testnet
+│
+├─→ API Client (src/lib/api.ts)
+│   └─→ Backend REST API
+│       └─→ Issues Attestations
+│
+└─→ Contract Interactions (Wagmi)
+    └─→ GatedNFTMinter Contract
+        └─→ AttestationGate Contract
+            └─→ Validates Attestations
+```
+
+### User Flow
+
+```
+1. User Connects Wallet
+   └─→ Wagmi detects MetaMask
+   └─→ Connects to Rootstock Testnet
+
+2. User Requests Attestation
+   └─→ Frontend → Backend API
+   └─→ Backend issues attestation via RAS
+   └─→ Backend registers on AttestationGate
+   └─→ Frontend displays transaction hashes
+
+3. User Checks Status
+   └─→ Frontend → Backend API
+   └─→ Backend queries AttestationGate contract
+   └─→ Returns validity status
+
+4. User Mints NFT
+   └─→ Frontend checks attestation status
+   └─→ Frontend reads contract state (price, supply)
+   └─→ User approves transaction
+   └─→ Contract validates attestation
+   └─→ NFT minted if valid
+   └─→ UI auto-refreshes
+```
+
+### State Management
+
+- **Wagmi Hooks**: For Web3 state (account, connection, contract reads/writes)
+- **React Query**: For API calls and caching (via Wagmi)
+- **Local State**: Component-level state for forms and UI
+
+## Project Structure
+
+```
+frontend/
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx          # Root layout with providers
+│   │   ├── page.tsx             # Main page component
+│   │   └── globals.css          # Global styles (Tailwind)
+│   ├── components/
+│   │   ├── wallet-connect.tsx    # Wallet connection UI
+│   │   ├── request-attestation.tsx  # Attestation request form
+│   │   ├── check-status.tsx     # Status checking component
+│   │   ├── mint-nft.tsx         # NFT minting component
+│   │   └── providers.tsx        # Wagmi & React Query providers
+│   └── lib/
+│       ├── api.ts               # Backend API client
+│       ├── config.ts            # Configuration (contracts, URLs)
+│       ├── contracts.ts         # Contract ABIs and addresses
+│       ├── utils.ts             # Utility functions
+│       └── wagmi.ts             # Wagmi configuration
+├── public/                      # Static assets
+├── .env.local                   # Environment variables
+└── package.json
+```
+
+## Configuration
+
+### Contract Addresses
+
+Default addresses are set in `src/lib/config.ts`:
+
+```typescript
+contracts: {
+  attestationGate: "0xe022df9f57b611675B6b713307E7563D0c9abC74",
+  gatedNFTMinter: "0x5e515B34A39c00Ba5C6203606CBc12bFf11fe010",
+}
+```
+
+Override via environment variables:
+- `NEXT_PUBLIC_ATTESTATION_GATE_ADDRESS`
+- `NEXT_PUBLIC_GATED_NFT_MINTER_ADDRESS`
+
+### Network Configuration
+
+Rootstock Testnet is configured in `src/lib/wagmi.ts`:
+
+- **Chain ID:** 31
+- **RPC:** `https://public-node.testnet.rsk.co`
+- **Explorer:** `https://explorer.testnet.rootstock.io`
+
+Override RPC URL via `NEXT_PUBLIC_RSK_RPC_URL`.
+
+### Backend URL
+
+Default: `http://localhost:4000`
+
+Override via `NEXT_PUBLIC_BACKEND_URL`.
+
+## Development
+
+### Available Scripts
+
+```bash
+# Development server
+npm run dev
+
+# Production build
+npm run build
+
+# Start production server
+npm start
+
+# Lint code
+npm run lint
+```
+
+### Tech Stack
+
+- **Next.js 16**: React framework with App Router
+- **React 19**: UI library
+- **Wagmi 3**: React hooks for Ethereum
+- **Viem**: Ethereum library for type-safe interactions
+- **Tailwind CSS 4**: Utility-first CSS framework
+- **TypeScript**: Type-safe JavaScript
+
+### Key Libraries
+
+- `@tanstack/react-query`: Data fetching and caching (via Wagmi)
+- `@metamask/sdk`: MetaMask SDK integration
+- `viem`: Ethereum utilities (formatting, parsing)
+
+## Styling
+
+The frontend uses Tailwind CSS with custom Rootstock theme colors:
+
+- **Green**: `#00AA44` (Rootstock brand)
+- **Orange**: `#FF6600` (Accent)
+- **Dark**: `#000000` (Background)
+- **Gray**: Various shades for cards and borders
+
+Custom colors are defined in `src/app/globals.css`.
+
+## API Integration
+
+### Backend Endpoints
+
+The frontend calls these backend endpoints (via `src/lib/api.ts`):
+
+**Issue Attestation:**
+```typescript
+POST /attestations/issue
+Body: { address, schemaType, statement? }
+Response: { uid, txHashAttest, txHashRegister }
+```
+
+**Check Status:**
+```typescript
+GET /attestations/:address/status?schemaType=nft
+Response: { address, schemaType, hasValid }
+```
+
+### Error Handling
+
+- Network errors are caught and displayed to users
+- Backend error messages are shown in UI
+- Transaction errors from contracts are handled by Wagmi
+
+## Contract Interactions
+
+### Reading Contract State
+
+Uses Wagmi's `useReadContract` hook:
+
+```typescript
+const { data: mintPrice } = useReadContract({
+  address: CONTRACT_ADDRESSES.GatedNFTMinter,
+  abi: GATED_NFT_MINTER_ABI,
+  functionName: "mintPrice",
+});
+```
+
+### Writing to Contracts
+
+Uses Wagmi's `useWriteContract` and `useWaitForTransactionReceipt`:
+
+```typescript
+const { writeContract, data: hash } = useWriteContract();
+const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash });
+
+// Call mint function
+writeContract({
+  address: CONTRACT_ADDRESSES.GatedNFTMinter,
+  abi: GATED_NFT_MINTER_ABI,
+  functionName: "mint",
+  value: mintPrice,
+});
+```
+
+## Troubleshooting
+
+### "Failed to fetch" errors
+
+- Ensure backend is running on `http://localhost:4000`
+- Check `NEXT_PUBLIC_BACKEND_URL` is correct
+- Check browser console for CORS errors
+
+### Wallet connection issues
+
+- Ensure MetaMask is installed and unlocked
+- Check MetaMask is connected to Rootstock Testnet (Chain ID 31)
+- Try disconnecting and reconnecting wallet
+
+### "Insufficient funds" when minting
+
+- Ensure wallet has tRBTC for gas fees
+- Check mint price is correct
+- Verify wallet has enough balance for mint price + gas
+
+### Contract read errors
+
+- Verify contract addresses are correct
+- Ensure contracts are deployed on Rootstock Testnet
+- Check RPC URL is accessible
+
+### Status not updating
+
+- Click "Refresh Status" button
+- Check backend is running and accessible
+- Verify attestation was successfully registered
+
+### NFT supply not updating after mint
+
+- Wait a few seconds for blockchain confirmation
+- Click "Refresh Status" button in MintNFT component
+- Check transaction was successful on explorer
+
+## Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `NEXT_PUBLIC_BACKEND_URL` | No | Backend API URL (default: `http://localhost:4000`) |
+| `NEXT_PUBLIC_RSK_RPC_URL` | No | Rootstock RPC endpoint |
+| `NEXT_PUBLIC_ATTESTATION_GATE_ADDRESS` | No | AttestationGate contract address |
+| `NEXT_PUBLIC_GATED_NFT_MINTER_ADDRESS` | No | GatedNFTMinter contract address |
+| `NEXT_PUBLIC_NFT_SCHEMA_UID` | No | NFT Schema UID |
+| `NEXT_PUBLIC_VAULT_SCHEMA_UID` | No | Vault Schema UID |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | No | WalletConnect project ID |
+
+**Note:** All environment variables must be prefixed with `NEXT_PUBLIC_` to be accessible in the browser.
+
+## Browser Support
+
+- Chrome/Edge (recommended)
+- Firefox
+- Brave
+- Safari (with MetaMask extension)
+
+## Security Considerations
+
+- **Private Keys**: Never expose private keys in frontend code
+- **Environment Variables**: Only use `NEXT_PUBLIC_*` for public values
+- **API Keys**: Don't store sensitive API keys in frontend
+- **Transaction Signing**: All transactions require user approval via wallet
+- **Contract Validation**: Always verify contract addresses before deployment
+
+## Next Steps
+
+After setting up the frontend:
+
+1. **Start Backend**: See `../backend/README.md`
+2. **Deploy Contracts**: See `../contracts/README.md`
+3. **Register Schemas**: Run backend schema registration script
+4. **Test Flow**: Connect wallet → Request attestation → Mint NFT
+
+## Additional Resources
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Wagmi Documentation](https://wagmi.sh)
+- [Viem Documentation](https://viem.sh)
+- [Rootstock Documentation](https://developers.rsk.co)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)

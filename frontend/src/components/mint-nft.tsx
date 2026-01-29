@@ -4,12 +4,13 @@ import { useState, useEffect, useCallback } from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { formatEther } from "viem";
 import { CONTRACT_ADDRESSES, GATED_NFT_MINTER_ABI } from "@/lib/contracts";
-import { getAttestationStatus } from "@/lib/api";
+import { getAttestationStatus, BackendUnreachableError } from "@/lib/api";
 
 export function MintNFT() {
   const { address, isConnected } = useAccount();
   const [userError, setUserError] = useState<string | null>(null);
   const [successDismissed, setSuccessDismissed] = useState(false);
+  const [backendUnreachable, setBackendUnreachable] = useState<string | null>(null);
   const [attestationStatus, setAttestationStatus] = useState<{
     hasValid: boolean;
     loading: boolean;
@@ -69,15 +70,19 @@ export function MintNFT() {
   const checkAttestation = useCallback(async () => {
     if (!address) {
       setAttestationStatus({ hasValid: false, loading: false });
+      setBackendUnreachable(null);
       return;
     }
 
     setAttestationStatus({ hasValid: false, loading: true });
+    setBackendUnreachable(null);
     try {
       const result = await getAttestationStatus(address, "nft");
       setAttestationStatus({ hasValid: result.hasValid, loading: false });
     } catch (error) {
-      console.error("Error checking attestation:", error);
+      if (error instanceof BackendUnreachableError) {
+        setBackendUnreachable(error.message);
+      }
       setAttestationStatus({ hasValid: false, loading: false });
     }
   }, [address]);
@@ -151,6 +156,30 @@ export function MintNFT() {
     return (
       <div className="text-center py-8">
         <p className="text-white/60">Connect your wallet to mint an NFT</p>
+      </div>
+    );
+  }
+
+  if (backendUnreachable) {
+    return (
+      <div className="space-y-4">
+        <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+          <p className="text-sm font-medium text-amber-400">Backend unreachable</p>
+          <p className="text-sm text-amber-400/80 mt-1">{backendUnreachable}</p>
+          <p className="text-xs text-white/50 mt-2">
+            Start the backend with <code className="bg-black/30 px-1 rounded">npm run dev</code> in the backend folder.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setBackendUnreachable(null);
+            checkAttestation();
+          }}
+          className="w-full py-2.5 px-4 bg-rootstock-gray-800 hover:bg-rootstock-gray-700 text-white rounded-xl font-medium border border-rootstock-gray-700"
+        >
+          Retry
+        </button>
       </div>
     );
   }

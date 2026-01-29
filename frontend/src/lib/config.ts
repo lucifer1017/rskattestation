@@ -1,16 +1,19 @@
-/**
- * Require an environment variable and throw if missing.
- * This ensures the app fails fast at startup if misconfigured.
- */
-function requireEnv(key: string): string {
-  const value = process.env[key];
-  if (!value) {
-    throw new Error(
-      `Missing required environment variable: ${key}. ` +
-      `Please add it to your .env or .env.local file in the frontend directory.`
-    );
-  }
-  return value;
+// Next.js requires direct access to process.env.NEXT_PUBLIC_* for client-side inlining
+const attestationGateAddress = process.env.NEXT_PUBLIC_ATTESTATION_GATE_ADDRESS;
+const gatedNFTMinterAddress = process.env.NEXT_PUBLIC_GATED_NFT_MINTER_ADDRESS;
+
+if (!attestationGateAddress) {
+  throw new Error(
+    "Missing required environment variable: NEXT_PUBLIC_ATTESTATION_GATE_ADDRESS. " +
+    "Please add it to your .env or .env.local file in the frontend directory."
+  );
+}
+
+if (!gatedNFTMinterAddress) {
+  throw new Error(
+    "Missing required environment variable: NEXT_PUBLIC_GATED_NFT_MINTER_ADDRESS. " +
+    "Please add it to your .env or .env.local file in the frontend directory."
+  );
 }
 
 export const config = {
@@ -20,8 +23,8 @@ export const config = {
   backendUrl:
     process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000",
   contracts: {
-    attestationGate: requireEnv("NEXT_PUBLIC_ATTESTATION_GATE_ADDRESS") as `0x${string}`,
-    gatedNFTMinter: requireEnv("NEXT_PUBLIC_GATED_NFT_MINTER_ADDRESS") as `0x${string}`,
+    attestationGate: attestationGateAddress as `0x${string}`,
+    gatedNFTMinter: gatedNFTMinterAddress as `0x${string}`,
   },
   schemas: {
     nft: process.env.NEXT_PUBLIC_NFT_SCHEMA_UID as `0x${string}` | undefined,

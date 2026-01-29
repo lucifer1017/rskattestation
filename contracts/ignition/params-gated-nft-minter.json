@@ -1,0 +1,10 @@
+{
+  "GatedNFTMinterModule": {
+    "attestationGateAddress": "0x5EBb83159Db6265D67a2bc5bc40f2472E521e608",
+    "requiredSchemaUID": "0xf58b8b212ef75ee8cd7e8d803c37c03e0519890502d5e99ee2412aae1456cafe",
+    "maxSupply": 1000,
+    "mintPrice": "100000000000000",
+    "name": "Rootstock Attestation NFT",
+    "symbol": "RANFT"
+  }
+}

@@ -42,7 +42,7 @@ EAS_CONTRACT_ADDRESS=0xc300aeEaDd60999933468738c9F5D7e9C0671e1c
 ATTESTATION_GATE_ADDRESS=0xe022df9f57b611675B6b713307E7563D0c9abC74
 
 # Backend Wallet (for signing transactions)
-BACKEND_PRIVATE_KEY=your_64_character_hex_private_key_here
+PRIVATE_KEY=your_64_character_hex_private_key_here
 
 # Schema UIDs (register first - see below)
 NFT_SCHEMA_UID=0x...
@@ -217,7 +217,7 @@ npm run register-schemas
 Registers NFT and Vault schemas on the Schema Registry. Automatically detects testnet/mainnet based on RPC URL.
 
 **Requirements:**
-- `BACKEND_PRIVATE_KEY` in `.env`
+- `PRIVATE_KEY` in `.env`
 - Wallet must have tRBTC for gas fees
 - Network must be accessible via `RSK_RPC_URL`
 
@@ -229,7 +229,7 @@ Registers NFT and Vault schemas on the Schema Registry. Automatically detects te
 | `RSK_RPC_URL` | Yes | Rootstock RPC endpoint |
 | `EAS_CONTRACT_ADDRESS` | Yes | RAS contract address (testnet: `0xc300aeEaDd60999933468738c9F5D7e9C0671e1c`) |
 | `ATTESTATION_GATE_ADDRESS` | Yes | Deployed AttestationGate contract address |
-| `BACKEND_PRIVATE_KEY` | Yes | 64 hex character private key (with or without 0x prefix) |
+| `PRIVATE_KEY` | Yes | 64 hex character private key (with or without 0x prefix) |
 | `NFT_SCHEMA_UID` | Optional | Schema UID for NFT gating (register first) |
 | `VAULT_SCHEMA_UID` | Optional | Schema UID for vault access (register first) |
 
@@ -239,7 +239,7 @@ Registers NFT and Vault schemas on the Schema Registry. Automatically detects te
 - Run `npm run register-schemas` to register schemas
 - Add the output Schema UIDs to your `.env` file
 
-### "BACKEND_PRIVATE_KEY not found"
+### "PRIVATE_KEY not found"
 - Ensure `.env` file exists in `backend/` directory
 - Private key must be 64 hex characters (with or without `0x` prefix)
 

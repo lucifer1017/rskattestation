@@ -16,7 +16,7 @@ async function registerSchemas() {
   const env = loadEnv();
 
   const provider = new JsonRpcProvider(env.RSK_RPC_URL);
-  const wallet = new Wallet(env.BACKEND_PRIVATE_KEY, provider);
+  const wallet = new Wallet(env.PRIVATE_KEY, provider);
 
   const SCHEMA_REGISTRY_TESTNET = getAddress("0x679c62956cd2801ababf80e9d430f18859eea2d5");
   const SCHEMA_REGISTRY_MAINNET = getAddress("0xef29675d82cc5967069d6d9c17f2719f67728f5b");

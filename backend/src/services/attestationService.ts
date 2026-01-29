@@ -6,6 +6,7 @@ import {
   hasValidAttestationOfSchema,
 } from "../contracts/attestationGateClient";
 import { loadEnv } from "../config/env";
+import { logger } from "../lib/logger";
 
 type SchemaType = "nft" | "vault";
 
@@ -82,7 +83,7 @@ export async function issueAttestationAndRegister(
   const expirationTime = BigInt(0);
   const revocable = true;
 
-  console.log("Sending attestation transaction...");
+  logger.debug("Sending attestation transaction...");
   const tx = await eas.attest({
     schema: schemaUID,
     data: {
@@ -94,85 +95,56 @@ export async function issueAttestationAndRegister(
     },
   });
 
-  console.log("Transaction object received, type:", typeof tx);
-  console.log("Transaction object keys:", Object.keys(tx));
-  
   let txHashAttest: string | null = null;
-  
+
   if (tx && typeof tx === "object" && "receipt" in tx) {
-    const receipt = (tx as any).receipt;
-    if (receipt && typeof receipt === "object" && "hash" in receipt) {
-      const hashValue = receipt.hash;
-      if (typeof hashValue === "string" && hashValue.startsWith("0x")) {
-        txHashAttest = hashValue;
-        console.log("Got transaction hash from tx.receipt.hash:", txHashAttest);
-      }
+    const receipt = (tx as { receipt?: { hash?: string } }).receipt;
+    if (receipt?.hash && typeof receipt.hash === "string" && receipt.hash.startsWith("0x")) {
+      txHashAttest = receipt.hash;
     }
   }
-  
   if (!txHashAttest && tx && typeof tx === "object" && "hash" in tx) {
-    const hashValue = (tx as any).hash;
+    const hashValue = (tx as { hash?: string }).hash;
     if (typeof hashValue === "string" && hashValue.startsWith("0x")) {
       txHashAttest = hashValue;
-      console.log("Got transaction hash from tx.hash:", txHashAttest);
     }
   }
-  
-  if (!txHashAttest) {
-    console.log("No hash found yet, will extract after confirmation");
-  }
 
-  console.log("Waiting for attestation transaction confirmation...");
-  
-  let uidResult: any;
+  logger.debug("Waiting for attestation transaction confirmation...");
+
+  let uidResult: unknown;
   try {
     uidResult = await tx.wait();
   } catch (waitError) {
-    console.error("Error waiting for attestation transaction confirmation:", waitError);
-    throw new Error(`Attestation transaction failed: ${waitError instanceof Error ? waitError.message : "Unknown error"}`);
+    const msg = waitError instanceof Error ? waitError.message : "Unknown error";
+    logger.error("Attestation transaction confirmation failed:", msg);
+    throw new Error(`Attestation transaction failed: ${msg}`);
   }
 
   if (!uidResult) {
     throw new Error("Attestation transaction failed - no receipt returned");
   }
 
-  console.log("Wait result type:", typeof uidResult);
-  console.log("Wait result:", uidResult);
-
   if (!txHashAttest) {
     if (typeof uidResult === "object" && uidResult !== null) {
-      const receiptLike = uidResult as any;
-      if ("transactionHash" in receiptLike && receiptLike.transactionHash) {
-        txHashAttest = receiptLike.transactionHash;
-      } else if ("hash" in receiptLike && receiptLike.hash) {
-        txHashAttest = receiptLike.hash;
-      }
+      const receiptLike = uidResult as { transactionHash?: string; hash?: string };
+      if (receiptLike.transactionHash) txHashAttest = receiptLike.transactionHash;
+      else if (receiptLike.hash) txHashAttest = receiptLike.hash;
     }
-    
-    // Final attempt: check tx.receipt again after wait
     if (!txHashAttest && tx && typeof tx === "object" && "receipt" in tx) {
-      const receipt = (tx as any).receipt;
-      if (receipt && typeof receipt === "object" && "hash" in receipt) {
-        txHashAttest = receipt.hash;
-      }
+      const receipt = (tx as { receipt?: { hash?: string } }).receipt;
+      if (receipt?.hash) txHashAttest = receipt.hash;
     }
   }
 
   if (!txHashAttest || !txHashAttest.startsWith("0x")) {
-    console.error("Failed to extract transaction hash after all attempts");
-    console.error("TX object structure:", JSON.stringify({
-      hasTx: !!tx,
-      txKeys: tx ? Object.keys(tx) : [],
-      hasReceipt: tx && "receipt" in tx,
-      receiptKeys: (tx && "receipt" in tx && (tx as any).receipt) ? Object.keys((tx as any).receipt) : []
-    }, null, 2));
-    throw new Error("Failed to extract attestation transaction hash - check logs for details");
+    logger.error("Failed to extract attestation transaction hash");
+    throw new Error("Failed to extract attestation transaction hash");
   }
 
-  console.log("Attestation transaction confirmed with hash:", txHashAttest);
+  logger.debug("Attestation transaction confirmed:", txHashAttest);
 
   const uid: string = typeof uidResult === "string" ? uidResult : toHexString(uidResult);
-  console.log("Extracted attestation UID:", uid);
 
   const txHashRegister = await registerAttestationOnChain({
     user: params.address,

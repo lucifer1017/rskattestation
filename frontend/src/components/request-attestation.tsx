@@ -1,13 +1,18 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useSignMessage } from "wagmi";
 import {
   issueAttestation,
   type SchemaType,
   type IssueAttestationResponse,
 } from "@/lib/api";
 import { formatBytes32 } from "@/lib/utils";
+
+/** Must match backend buildAttestationMessage */
+function buildAttestationMessage(address: string, timestamp: number): string {
+  return `Request attestation for ${address} at ${timestamp}`;
+}
 
 type RequestState =
   | { status: "idle" }
@@ -21,6 +26,7 @@ interface RequestAttestationProps {
 
 export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
   const { address, isConnected } = useAccount();
+  const { signMessageAsync } = useSignMessage();
   const [schemaType, setSchemaType] = useState<SchemaType>("nft");
   const [statement, setStatement] = useState("");
   const [requestState, setRequestState] = useState<RequestState>({
@@ -43,10 +49,16 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
       setRequestState({ status: "loading" });
 
       try {
+        const timestamp = Math.floor(Date.now() / 1000);
+        const message = buildAttestationMessage(address, timestamp);
+        const signature = await signMessageAsync({ message });
+
         const result = await issueAttestation({
           address,
           schemaType,
           statement: statement.trim() || undefined,
+          signature: signature as `0x${string}`,
+          timestamp,
         });
 
         setRequestState({ status: "success", data: result });
@@ -59,7 +71,7 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
         setRequestState({ status: "error", message });
       }
     },
-    [address, schemaType, statement, onSuccess]
+    [address, schemaType, statement, onSuccess, signMessageAsync]
   );
 
   const resetForm = useCallback(() => {

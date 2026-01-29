@@ -54,7 +54,7 @@ const publicClient = createPublicClient({
   transport,
 });
 
-const account = privateKeyToAccount(env.BACKEND_PRIVATE_KEY as Hex);
+const account = privateKeyToAccount(env.PRIVATE_KEY as Hex);
 
 const walletClient = createWalletClient({
   account,

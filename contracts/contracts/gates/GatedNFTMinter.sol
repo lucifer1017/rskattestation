@@ -44,6 +44,7 @@ contract GatedNFTMinter is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     ) ERC721(name, symbol) Ownable(msg.sender) {
         require(_attestationGate != address(0), "GatedNFTMinter: invalid gate address");
         require(_maxSupply > 0, "GatedNFTMinter: invalid max supply");
+        require(_requiredSchemaUID != bytes32(0), "GatedNFTMinter: invalid schema");
         
         attestationGate = AttestationGate(_attestationGate);
         requiredSchemaUID = _requiredSchemaUID;
@@ -76,7 +77,8 @@ contract GatedNFTMinter is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
 
         // Refund excess payment
         if (msg.value > mintPrice) {
-            payable(msg.sender).transfer(msg.value - mintPrice);
+            (bool success, ) = payable(msg.sender).call{value: msg.value - mintPrice}("");
+            require(success, "GatedNFTMinter: refund failed");
         }
     }
 
@@ -96,7 +98,8 @@ contract GatedNFTMinter is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     function withdraw() external onlyOwner {
         uint256 balance = address(this).balance;
         require(balance > 0, "GatedNFTMinter: no balance to withdraw");
-        payable(owner()).transfer(balance);
+        (bool success, ) = payable(owner()).call{value: balance}("");
+        require(success, "GatedNFTMinter: withdraw failed");
     }
 
     /**

@@ -10,6 +10,10 @@ export interface IssueAttestationRequest {
   address: `0x${string}`;
   schemaType: SchemaType;
   statement?: string;
+  /** Signature of buildAttestationMessage(address, timestamp) from the wallet owning address */
+  signature: `0x${string}`;
+  /** Unix timestamp in seconds used in the signed message (replay protection) */
+  timestamp: number;
 }
 
 export interface IssueAttestationResponse {

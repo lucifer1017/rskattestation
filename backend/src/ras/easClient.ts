@@ -12,7 +12,7 @@ export function getEAS(): EAS {
   const env = loadEnv();
 
   const provider = new JsonRpcProvider(env.RSK_RPC_URL);
-  const wallet = new Wallet(env.BACKEND_PRIVATE_KEY, provider);
+  const wallet = new Wallet(env.PRIVATE_KEY, provider);
 
   const eas = new EAS(env.EAS_CONTRACT_ADDRESS);
   eas.connect(wallet);

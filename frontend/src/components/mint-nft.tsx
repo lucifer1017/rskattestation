@@ -6,17 +6,10 @@ import { formatEther } from "viem";
 import { CONTRACT_ADDRESSES, GATED_NFT_MINTER_ABI } from "@/lib/contracts";
 import { getAttestationStatus } from "@/lib/api";
 
-type MintState =
-  | { status: "idle" }
-  | { status: "checking" }
-  | { status: "ready"; hasAttestation: boolean; hasMinted: boolean }
-  | { status: "minting" }
-  | { status: "success"; txHash: string; tokenId?: bigint }
-  | { status: "error"; message: string };
-
 export function MintNFT() {
   const { address, isConnected } = useAccount();
-  const [mintState, setMintState] = useState<MintState>({ status: "idle" });
+  const [userError, setUserError] = useState<string | null>(null);
+  const [successDismissed, setSuccessDismissed] = useState(false);
   const [attestationStatus, setAttestationStatus] = useState<{
     hasValid: boolean;
     loading: boolean;
@@ -89,73 +82,52 @@ export function MintNFT() {
     }
   }, [address]);
 
-  useEffect(() => {
-    if (!isConnected || !address) {
-      setMintState({ status: "idle" });
-      return;
-    }
-
-    if (
-      priceLoading ||
-      mintedLoading ||
-      supplyLoading ||
-      attestationStatus.loading
-    ) {
-      setMintState({ status: "checking" });
-      return;
-    }
-
-    const hasMintedBool = hasMinted === true;
-    const hasAttestation = attestationStatus.hasValid;
-
-    setMintState({
-      status: "ready",
-      hasAttestation,
-      hasMinted: hasMintedBool,
-    });
-  }, [
-    isConnected,
-    address,
-    priceLoading,
-    mintedLoading,
-    supplyLoading,
-    attestationStatus.loading,
-    hasMinted,
-    attestationStatus.hasValid,
-  ]);
-
+  // Defer so effect does not synchronously trigger setState (satisfies react-hooks/set-state-in-effect)
   useEffect(() => {
     if (isConnected && address) {
-      checkAttestation();
+      queueMicrotask(() => checkAttestation());
     }
   }, [isConnected, address, checkAttestation]);
 
+  // Refetch contract data when mint tx confirms (no setState in effect)
   useEffect(() => {
-    if (isMintPending || isConfirming) {
-      setMintState({ status: "minting" });
-    } else if (isConfirmed && hash) {
-      setMintState({ status: "success", txHash: hash });
-      // Refresh all contract data after success
-      setTimeout(() => {
+    if (isConfirmed && hash) {
+      const t = setTimeout(() => {
         refetchSupply();
         refetchHasMinted();
+        refetchBalance();
         checkAttestation();
       }, 2000);
-    } else if (mintError) {
-      setMintState({
-        status: "error",
-        message:
-          mintError.message || "Failed to mint NFT. Please try again.",
-      });
+      return () => clearTimeout(t);
     }
-  }, [isMintPending, isConfirming, isConfirmed, hash, mintError, checkAttestation, refetchSupply, refetchHasMinted, refetchBalance]);
+  }, [isConfirmed, hash, refetchSupply, refetchHasMinted, refetchBalance, checkAttestation]);
+
+  // Derived display phase (no setState in effects)
+  const isIdle = !isConnected || !address;
+  const isChecking =
+    isConnected &&
+    !!address &&
+    (priceLoading || mintedLoading || supplyLoading || attestationStatus.loading);
+  const isMinting = isMintPending || isConfirming;
+  const isSuccess = isConfirmed && !!hash && !successDismissed;
+  const isError = !!(mintError || userError);
+  const errorMessage =
+    userError ?? mintError?.message ?? "Failed to mint NFT. Please try again.";
+  const isReady =
+    isConnected &&
+    !!address &&
+    !isChecking &&
+    !isMinting &&
+    !isSuccess &&
+    !isError;
+  const hasAttestation = attestationStatus.hasValid;
+  const hasMintedBool = hasMinted === true;
 
   const handleMint = useCallback(() => {
+    setUserError(null);
+    setSuccessDismissed(false);
     if (!address || !mintPrice) {
-      setMintState({
-        status: "error",
-        message: "Missing required information",
-      });
+      setUserError("Missing required information");
       return;
     }
 
@@ -167,13 +139,11 @@ export function MintNFT() {
         value: mintPrice,
       });
     } catch (error) {
-      setMintState({
-        status: "error",
-        message:
-          error instanceof Error
-            ? error.message
-            : "Failed to initiate mint transaction",
-      });
+      setUserError(
+        error instanceof Error
+          ? error.message
+          : "Failed to initiate mint transaction"
+      );
     }
   }, [address, mintPrice, writeContract]);
 
@@ -185,7 +155,7 @@ export function MintNFT() {
     );
   }
 
-  if (mintState.status === "checking" || mintState.status === "idle") {
+  if (isChecking || isIdle) {
     return (
       <div className="flex items-center justify-center gap-3 py-8">
         <svg
@@ -212,8 +182,8 @@ export function MintNFT() {
     );
   }
 
-  if (mintState.status === "ready") {
-    const canMint = mintState.hasAttestation && !mintState.hasMinted;
+  if (isReady) {
+    const canMint = hasAttestation && !hasMintedBool;
     const isSoldOut = maxSupply && currentSupply && currentSupply >= maxSupply;
 
     return (
@@ -235,16 +205,16 @@ export function MintNFT() {
             <span className="text-white/60">Your Status</span>
             <span
               className={`font-medium ${
-                mintState.hasMinted
+                hasMintedBool
                   ? "text-rootstock-green"
-                  : mintState.hasAttestation
+                  : hasAttestation
                     ? "text-rootstock-orange"
                     : "text-red-400"
               }`}
             >
-              {mintState.hasMinted
+              {hasMintedBool
                 ? "Already Minted"
-                : mintState.hasAttestation
+                : hasAttestation
                   ? "Eligible"
                   : "No Attestation"}
             </span>
@@ -259,7 +229,7 @@ export function MintNFT() {
           )}
         </div>
 
-        {!mintState.hasAttestation && (
+        {!hasAttestation && (
           <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
             <div className="flex items-start gap-3">
               <svg
@@ -281,14 +251,14 @@ export function MintNFT() {
                 </p>
                 <p className="text-sm text-red-400/80 mt-1">
                   You need a valid NFT attestation to mint. Request one in the
-                  "Request Attestation" section above.
+                  &quot;Request Attestation&quot; section above.
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {mintState.hasMinted && (
+        {hasMintedBool && (
           <div className="p-4 bg-rootstock-green/10 border border-rootstock-green/30 rounded-xl">
             <div className="flex items-start gap-3">
               <svg
@@ -408,7 +378,7 @@ export function MintNFT() {
     );
   }
 
-  if (mintState.status === "minting") {
+  if (isMinting) {
     return (
       <div className="space-y-4">
         <div className="p-6 bg-rootstock-green/10 border border-rootstock-green/30 rounded-xl">
@@ -448,7 +418,7 @@ export function MintNFT() {
     );
   }
 
-  if (mintState.status === "success") {
+  if (isSuccess) {
     return (
       <div className="space-y-4">
         <div className="p-6 bg-rootstock-green/10 border border-rootstock-green/30 rounded-xl">
@@ -483,7 +453,7 @@ export function MintNFT() {
           <div className="flex justify-between items-center">
             <span className="text-sm text-white/60">Transaction</span>
             <a
-              href={`https://explorer.testnet.rootstock.io/tx/${mintState.txHash}`}
+              href={`https://explorer.testnet.rootstock.io/tx/${hash}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-rootstock-orange hover:text-rootstock-orange-light transition-colors font-mono"
@@ -495,7 +465,7 @@ export function MintNFT() {
 
         <button
           onClick={() => {
-            setMintState({ status: "idle" });
+            setSuccessDismissed(true);
             refetchSupply();
             refetchHasMinted();
             refetchBalance();
@@ -509,7 +479,7 @@ export function MintNFT() {
     );
   }
 
-  if (mintState.status === "error") {
+  if (isError) {
     return (
       <div className="space-y-4">
         <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
@@ -530,7 +500,7 @@ export function MintNFT() {
             <div className="flex-1">
               <p className="text-sm font-medium text-red-400">Mint Failed</p>
               <p className="text-sm text-red-400/80 mt-1">
-                {mintState.message}
+                {errorMessage}
               </p>
             </div>
           </div>
@@ -538,7 +508,7 @@ export function MintNFT() {
 
         <button
           onClick={() => {
-            setMintState({ status: "idle" });
+            setUserError(null);
             refetchSupply();
             refetchHasMinted();
             refetchBalance();

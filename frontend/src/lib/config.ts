@@ -1,3 +1,18 @@
+/**
+ * Require an environment variable and throw if missing.
+ * This ensures the app fails fast at startup if misconfigured.
+ */
+function requireEnv(key: string): string {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(
+      `Missing required environment variable: ${key}. ` +
+      `Please add it to your .env or .env.local file in the frontend directory.`
+    );
+  }
+  return value;
+}
+
 export const config = {
   rskRpcUrl:
     process.env.NEXT_PUBLIC_RSK_RPC_URL ||
@@ -5,12 +20,8 @@ export const config = {
   backendUrl:
     process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000",
   contracts: {
-    attestationGate:
-      (process.env.NEXT_PUBLIC_ATTESTATION_GATE_ADDRESS as `0x${string}`) ||
-      "0xe022df9f57b611675B6b713307E7563D0c9abC74",
-    gatedNFTMinter:
-      (process.env.NEXT_PUBLIC_GATED_NFT_MINTER_ADDRESS as `0x${string}`) ||
-      "0x5e515B34A39c00Ba5C6203606CBc12bFf11fe010",
+    attestationGate: requireEnv("NEXT_PUBLIC_ATTESTATION_GATE_ADDRESS") as `0x${string}`,
+    gatedNFTMinter: requireEnv("NEXT_PUBLIC_GATED_NFT_MINTER_ADDRESS") as `0x${string}`,
   },
   schemas: {
     nft: process.env.NEXT_PUBLIC_NFT_SCHEMA_UID as `0x${string}` | undefined,

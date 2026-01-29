@@ -20,6 +20,9 @@ contract AttestationGate is Ownable {
     // Mapping: user address => schema UID => attestation UID
     mapping(address => mapping(bytes32 => bytes32)) public userSchemaAttestations;
 
+    // Mapping: attester address => is authorized
+    mapping(address => bool) public authorizedAttesters;
+
     // Events
     event AttestationRegistered(
         address indexed user,
@@ -36,6 +39,17 @@ contract AttestationGate is Ownable {
         require(_easAddress != address(0), "AttestationGate: invalid EAS address");
         easAddress = _easAddress;
         eas = IEAS(_easAddress);
+    }
+
+    /**
+     * @notice Set or unset an authorized attester address
+     * @dev Only the contract owner can manage authorized attesters
+     * @param attester Address of the attester (EAS signer)
+     * @param authorized Whether the attester is authorized
+     */
+    function setAuthorizedAttester(address attester, bool authorized) external onlyOwner {
+        require(attester != address(0), "AttestationGate: invalid attester");
+        authorizedAttesters[attester] = authorized;
     }
 
     /**
@@ -58,6 +72,10 @@ contract AttestationGate is Ownable {
         // Verify attestation exists and is valid
         IEAS.Attestation memory attestation = eas.getAttestation(attestationUID);
         require(attestation.uid != bytes32(0), "AttestationGate: attestation does not exist");
+        require(
+            authorizedAttesters[attestation.attester],
+            "AttestationGate: unauthorized attester"
+        );
         require(attestation.recipient == user, "AttestationGate: recipient mismatch");
         require(attestation.schema == schemaUID, "AttestationGate: schema mismatch");
         require(attestation.revocationTime == 0, "AttestationGate: attestation revoked");

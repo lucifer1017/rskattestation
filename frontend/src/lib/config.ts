@@ -25,11 +25,5 @@ export const config = {
     attestationGate: attestationGateAddress as `0x${string}`,
     gatedNFTMinter: gatedNFTMinterAddress as `0x${string}`,
   },
-  schemas: {
-    nft: process.env.NEXT_PUBLIC_NFT_SCHEMA_UID as `0x${string}` | undefined,
-    vault: process.env.NEXT_PUBLIC_VAULT_SCHEMA_UID as
-      | `0x${string}`
-      | undefined,
-  },
 } as const;
 

@@ -28,25 +28,16 @@ npm install
 
 ### 2. Configure Environment
 
-Create a `.env.local` file in the `frontend/` directory:
+Create a `.env.local` file in the `frontend/` directory (see `.env.example`):
 
 ```env
-# Backend API URL
+# Required: deployed contract addresses (Rootstock Testnet)
+NEXT_PUBLIC_ATTESTATION_GATE_ADDRESS=0x_your_attestation_gate_address
+NEXT_PUBLIC_GATED_NFT_MINTER_ADDRESS=0x_your_gated_nft_minter_address
+
+# Optional overrides (defaults in code)
 NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
-
-# Rootstock Network
 NEXT_PUBLIC_RSK_RPC_URL=https://public-node.testnet.rsk.co
-
-# Contract Addresses (optional - defaults provided)
-NEXT_PUBLIC_ATTESTATION_GATE_ADDRESS=0xe022df9f57b611675B6b713307E7563D0c9abC74
-NEXT_PUBLIC_GATED_NFT_MINTER_ADDRESS=0x5e515B34A39c00Ba5C6203606CBc12bFf11fe010
-
-# Schema UIDs (optional - from backend registration)
-NEXT_PUBLIC_NFT_SCHEMA_UID=0x...
-NEXT_PUBLIC_VAULT_SCHEMA_UID=0x...
-
-# WalletConnect (optional)
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id
 ```
 
 ### 3. Start Development Server
@@ -69,7 +60,6 @@ npm start
 ### Wallet Connection
 
 - **MetaMask Integration**: Primary wallet connector with automatic detection
-- **WalletConnect Support**: Optional mobile wallet support
 - **Connection Status**: Real-time wallet connection state
 - **Address Display**: Formatted address display in header
 
@@ -183,8 +173,9 @@ Next.js App (React)
    └─→ Connects to Rootstock Testnet
 
 2. User Requests Attestation
-   └─→ Frontend → Backend API
-   └─→ Backend issues attestation via RAS
+   └─→ Frontend prompts user to sign message (Request attestation for <address> at <timestamp>)
+   └─→ Frontend → Backend API (address, schemaType, signature, timestamp)
+   └─→ Backend verifies signature and timestamp, then issues attestation via RAS
    └─→ Backend registers on AttestationGate
    └─→ Frontend displays transaction hashes
 
@@ -238,18 +229,12 @@ frontend/
 
 ### Contract Addresses
 
-Default addresses are set in `src/lib/config.ts`:
+Contract addresses are read from environment variables in `src/lib/config.ts`. Both are **required**; the app throws at startup if missing.
 
-```typescript
-contracts: {
-  attestationGate: "0xe022df9f57b611675B6b713307E7563D0c9abC74",
-  gatedNFTMinter: "0x5e515B34A39c00Ba5C6203606CBc12bFf11fe010",
-}
-```
+- `NEXT_PUBLIC_ATTESTATION_GATE_ADDRESS` — Deployed AttestationGate address
+- `NEXT_PUBLIC_GATED_NFT_MINTER_ADDRESS` — Deployed GatedNFTMinter address
 
-Override via environment variables:
-- `NEXT_PUBLIC_ATTESTATION_GATE_ADDRESS`
-- `NEXT_PUBLIC_GATED_NFT_MINTER_ADDRESS`
+Copy from `contracts/ignition/deployments/chain-31/deployed_addresses.json` or your deployment output.
 
 ### Network Configuration
 
@@ -320,9 +305,9 @@ The frontend calls these backend endpoints (via `src/lib/api.ts`):
 **Issue Attestation:**
 ```typescript
 POST /attestations/issue
-Body: { address, schemaType, statement? }
-Response: { uid, txHashAttest, txHashRegister }
+Body: { address, schemaType, statement?, signature, timestamp }
 ```
+The frontend signs the message `Request attestation for <address> at <timestamp>` (same address and Unix timestamp as in the body) and sends `signature` and `timestamp`. The backend verifies ownership and a 5-minute replay window. Response: `{ uid, txHashAttest, txHashRegister }`.
 
 **Check Status:**
 ```typescript
@@ -332,9 +317,9 @@ Response: { address, schemaType, hasValid }
 
 ### Error Handling
 
-- Network errors are caught and displayed to users
-- Backend error messages are shown in UI
-- Transaction errors from contracts are handled by Wagmi
+- **Backend unreachable:** If the backend is not running or not reachable, the app shows a clear message and a retry option (e.g. on the mint page).
+- Network errors and backend error messages are displayed in the UI.
+- Transaction errors from contracts are handled by Wagmi.
 
 ## Contract Interactions
 
@@ -369,11 +354,11 @@ writeContract({
 
 ## Troubleshooting
 
-### "Failed to fetch" errors
+### "Failed to fetch" / backend unreachable
 
-- Ensure backend is running on `http://localhost:4000`
-- Check `NEXT_PUBLIC_BACKEND_URL` is correct
-- Check browser console for CORS errors
+- Ensure the backend is running (default `http://localhost:4000`). The app may show a banner when the backend is unreachable.
+- Check `NEXT_PUBLIC_BACKEND_URL` if you use a different URL.
+- Check the browser console for CORS or network errors.
 
 ### Wallet connection issues
 
@@ -409,15 +394,13 @@ writeContract({
 
 | Variable | Required | Description |
 |----------|----------|-------------|
+| `NEXT_PUBLIC_ATTESTATION_GATE_ADDRESS` | Yes | Deployed AttestationGate contract address |
+| `NEXT_PUBLIC_GATED_NFT_MINTER_ADDRESS` | Yes | Deployed GatedNFTMinter contract address |
 | `NEXT_PUBLIC_BACKEND_URL` | No | Backend API URL (default: `http://localhost:4000`) |
-| `NEXT_PUBLIC_RSK_RPC_URL` | No | Rootstock RPC endpoint |
-| `NEXT_PUBLIC_ATTESTATION_GATE_ADDRESS` | No | AttestationGate contract address |
-| `NEXT_PUBLIC_GATED_NFT_MINTER_ADDRESS` | No | GatedNFTMinter contract address |
-| `NEXT_PUBLIC_NFT_SCHEMA_UID` | No | NFT Schema UID |
-| `NEXT_PUBLIC_VAULT_SCHEMA_UID` | No | Vault Schema UID |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | No | WalletConnect project ID |
+| `NEXT_PUBLIC_RSK_RPC_URL` | No | Rootstock RPC endpoint (default: public testnet node) |
 
-**Note:** All environment variables must be prefixed with `NEXT_PUBLIC_` to be accessible in the browser.
+
+All variables must be prefixed with `NEXT_PUBLIC_` to be available in the browser. Copy `.env.example` to `.env.local` and set the two required addresses.
 
 ## Browser Support
 
@@ -443,10 +426,3 @@ After setting up the frontend:
 3. **Register Schemas**: Run backend schema registration script
 4. **Test Flow**: Connect wallet → Request attestation → Mint NFT
 
-## Additional Resources
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Wagmi Documentation](https://wagmi.sh)
-- [Viem Documentation](https://viem.sh)
-- [Rootstock Documentation](https://developers.rsk.co)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)

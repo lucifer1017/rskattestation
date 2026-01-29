@@ -82,26 +82,19 @@ VAULT_SCHEMA_UID=0xf58b8b212ef75ee8cd7e8d803c37c03e0519890502d5e99ee2412aae1456c
 
 **What it does:** ERC721 NFT contract that requires users to have a valid attestation before minting. Each address can mint once.
 
+Edit `ignition/params-gated-nft-minter.json` to set your AttestationGate address and NFT Schema UID (from Step 1 and backend registration), then run:
+
 ```bash
-npx hardhat ignition deploy ignition/modules/GatedNFTMinter.ts \
-  --network rskTestnet \
-  --parameters '{"GatedNFTMinterModule":{"attestationGateAddress":"0xe022df9f57b611675B6b713307E7563D0c9abC74","requiredSchemaUID":"YOUR_NFT_SCHEMA_UID","maxSupply":"1000","mintPrice":"100000000000000","name":"Rootstock Attestation NFT","symbol":"RANFT"}}'
+npx hardhat ignition deploy ignition/modules/GatedNFTMinter.ts --network rskTestnet --parameters ignition/params-gated-nft-minter.json
 ```
 
-**Parameters:**
+**Parameters (in `ignition/params-gated-nft-minter.json`):**
 - `attestationGateAddress`: Deployed AttestationGate address (from Step 1)
 - `requiredSchemaUID`: NFT Schema UID (from backend registration)
 - `maxSupply`: Maximum NFTs that can be minted (e.g., `1000`)
 - `mintPrice`: Mint price in wei (e.g., `100000000000000` = 0.0001 tRBTC)
 - `name`: NFT collection name
 - `symbol`: NFT collection symbol
-
-**Example:**
-```bash
-npx hardhat ignition deploy ignition/modules/GatedNFTMinter.ts \
-  --network rskTestnet \
-  --parameters '{"GatedNFTMinterModule":{"attestationGateAddress":"0xe022df9f57b611675B6b713307E7563D0c9abC74","requiredSchemaUID":"0xf58b8b212ef75ee8cd7e8d803c37c03e0519890502d5e99ee2412aae1456cafe","maxSupply":"1000","mintPrice":"100000000000000","name":"Rootstock Attestation NFT","symbol":"RANFT"}}'
-```
 
 ### Step 4: Deploy GatedVault (Optional)
 
@@ -177,17 +170,6 @@ npx hardhat ignition deploy ignition/modules/GatedVault.ts \
 
 ## Scripts
 
-### Check Deployment Status
-
-```bash
-npx hardhat run scripts/check-deployment.ts --network rskTestnet
-```
-
-Checks if contracts are deployed and verifies their state. Set environment variables:
-- `ATTESTATION_GATE_ADDRESS`
-- `NFT_MINTER_ADDRESS`
-- `VAULT_ADDRESS`
-
 ### Update Mint Price
 
 ```bash
@@ -208,13 +190,6 @@ npx hardhat run scripts/verify.ts --network rskTestnet
 
 Shows instructions for verifying contracts on Blockscout explorer.
 
-### Deployment Helper
-
-```bash
-npx hardhat run scripts/deploy.ts --network rskTestnet
-```
-
-Displays deployment commands with proper formatting.
 
 ## Testing
 
@@ -257,10 +232,6 @@ npx hardhat test test/GatedVault.test.ts
 
 ## Deployed Contracts (Testnet)
 
-**Current Deployments (Chain 31):**
-- AttestationGate: `0xe022df9f57b611675B6b713307E7563D0c9abC74`
-- GatedNFTMinter: `0x5e515B34A39c00Ba5C6203606CBc12bFf11fe010`
-
 **Deployment Info:**
 - Addresses saved in: `ignition/deployments/chain-31/deployed_addresses.json`
 - Artifacts: `ignition/deployments/chain-31/artifacts/`
@@ -289,7 +260,6 @@ contracts/
 │   │   └── CompleteDeployment.ts
 │   └── deployments/                 # Deployment artifacts
 ├── scripts/                         # Utility scripts
-│   ├── check-deployment.ts
 │   ├── deploy.ts
 │   ├── update-mint-price.ts
 │   └── verify.ts
@@ -362,8 +332,8 @@ Contract → AttestationGate → Validate Attestation
 | `RSK_TESTNET_RPC_URL` | Yes* | Rootstock Testnet RPC endpoint |
 | `RSK_MAINNET_RPC_URL` | Yes* | Rootstock Mainnet RPC endpoint |
 | `NFT_MINTER_ADDRESS` | No | For update-mint-price script |
-| `ATTESTATION_GATE_ADDRESS` | No | For check-deployment script |
-| `VAULT_ADDRESS` | No | For check-deployment script |
+| `ATTESTATION_GATE_ADDRESS` | No | For set-authorized-attester script (deployed AttestationGate address) |
+| `ATTESTER_ADDRESS` | No | For set-authorized-attester script (backend wallet address to authorize) |
 
 *Required based on which network you're deploying to
 

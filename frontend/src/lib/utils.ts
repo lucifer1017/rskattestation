@@ -10,9 +10,6 @@ export function formatBytes32(bytes: `0x${string}` | string | undefined): string
   return `${bytes.slice(0, 10)}...${bytes.slice(-8)}`;
 }
 
-/**
- * Format wei to RBTC
- */
 export function formatRBTC(wei: bigint | string | number): string {
   const value = typeof wei === "string" ? BigInt(wei) : BigInt(wei);
   const rbtc = Number(value) / 1e18;

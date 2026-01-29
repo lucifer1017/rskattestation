@@ -9,7 +9,6 @@ import { logger } from "../lib/logger";
 
 export const router = Router();
 
-/** Max age of the signed message (seconds). Prevents replay. */
 const SIGNATURE_MAX_AGE_SEC = 300;
 
 const issueSchema = z.object({
@@ -43,7 +42,6 @@ router.post("/issue", async (req, res) => {
 
     const { address, signature, timestamp, schemaType, statement } = parsed.data;
 
-    // Replay protection: timestamp must be within last SIGNATURE_MAX_AGE_SEC
     const nowSec = Math.floor(Date.now() / 1000);
     if (Math.abs(nowSec - timestamp) > SIGNATURE_MAX_AGE_SEC) {
       logger.debug("Attestation request rejected: timestamp out of window", {

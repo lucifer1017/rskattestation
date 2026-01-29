@@ -25,7 +25,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-12">
         {!isConnected ? (
           <div className="text-center py-20">

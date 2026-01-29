@@ -1,15 +1,9 @@
-/**
- * Contract addresses and ABIs for Rootstock Attestation Module
- */
-
 import { config } from "./config";
 
-// Contract addresses from environment variables (via config)
 export const CONTRACT_ADDRESSES = {
   GatedNFTMinter: config.contracts.gatedNFTMinter,
 } as const;
 
-// GatedNFTMinter ABI
 export const GATED_NFT_MINTER_ABI = [
   {
     inputs: [

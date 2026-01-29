@@ -10,9 +10,7 @@ export interface IssueAttestationRequest {
   address: `0x${string}`;
   schemaType: SchemaType;
   statement?: string;
-  /** Signature of buildAttestationMessage(address, timestamp) from the wallet owning address */
   signature: `0x${string}`;
-  /** Unix timestamp in seconds used in the signed message (replay protection) */
   timestamp: number;
 }
 
@@ -28,7 +26,6 @@ export interface AttestationStatusResponse {
   hasValid: boolean;
 }
 
-/** Thrown when the backend is unreachable (network error, not 4xx/5xx). */
 export class BackendUnreachableError extends Error {
   constructor(message: string, public readonly url: string) {
     super(message);
@@ -72,7 +69,6 @@ export async function issueAttestation(
     const error = await response.json().catch(() => ({
       error: "Failed to issue attestation",
     }));
-    // Include both error and details for better debugging
     const errorMessage = error.details 
       ? `${error.error || "Failed to issue attestation"}: ${error.details}`
       : error.error || error.details || "Failed to issue attestation";

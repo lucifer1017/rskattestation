@@ -1,6 +1,3 @@
-/**
- * Simple logger with levels. In production, debug logs are suppressed.
- */
 const isProd = process.env.NODE_ENV === "production";
 
 export const logger = {

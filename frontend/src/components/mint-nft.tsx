@@ -61,7 +61,6 @@ export function MintNFT() {
     error: mintError,
   } = useWriteContract();
 
-  // Wait for transaction
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
       hash,
@@ -87,7 +86,6 @@ export function MintNFT() {
     }
   }, [address]);
 
-  // Defer so effect does not synchronously trigger setState (satisfies react-hooks/set-state-in-effect)
   useEffect(() => {
     if (isConnected && address) {
       queueMicrotask(() => checkAttestation());
@@ -107,7 +105,6 @@ export function MintNFT() {
     }
   }, [isConfirmed, hash, refetchSupply, refetchHasMinted, refetchBalance, checkAttestation]);
 
-  // Derived display phase (no setState in effects)
   const isIdle = !isConnected || !address;
   const isChecking =
     isConnected &&

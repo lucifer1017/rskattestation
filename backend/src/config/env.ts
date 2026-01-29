@@ -14,7 +14,6 @@ const envSchema = z.object({
     .min(1, "PRIVATE_KEY is required")
     .refine(
       (val) => {
-        // Accept: 64 hex chars (no 0x) OR 66 chars (0x + 64 hex)
         const withoutPrefix = val.startsWith("0x") ? val.slice(2) : val;
         return /^[a-fA-F0-9]{64}$/.test(withoutPrefix);
       },
@@ -68,26 +67,14 @@ export function loadEnv(): Env {
   const parsed = envSchema.safeParse(rawEnv);
 
   if (!parsed.success) {
-    console.error("Invalid environment configuration:", parsed.error.format());
-    
-    const privateKeyValue = rawEnv.PRIVATE_KEY;
-    if (!privateKeyValue) {
-      console.error("\n❌ PRIVATE_KEY is missing or empty in .env file");
-      console.error("   Make sure you have: PRIVATE_KEY=... (64 hex chars, with or without 0x prefix)");
-    } else {
-      const preview = privateKeyValue.length > 10 
-        ? `${privateKeyValue.substring(0, 10)}...` 
-        : privateKeyValue;
-      console.error(`\n❌ PRIVATE_KEY value preview: ${preview}`);
-      console.error(`   Length: ${privateKeyValue.length} (expected: 64 or 66)`);
-      const withoutPrefix = privateKeyValue.startsWith("0x") ? privateKeyValue.slice(2) : privateKeyValue;
-      console.error(`   Hex chars (without 0x): ${withoutPrefix.length} (expected: 64)`);
-    }
-    
-    throw new Error("Invalid environment configuration");
+    throw new Error(
+      "Invalid environment configuration. Check .env: " +
+      (typeof rawEnv.PRIVATE_KEY === "string" && rawEnv.PRIVATE_KEY.length > 0
+        ? "PRIVATE_KEY must be 64 hex characters."
+        : "PRIVATE_KEY is required.")
+    );
   }
 
-  // Normalize private key to always have 0x prefix
   const normalized = {
     ...parsed.data,
     PRIVATE_KEY: parsed.data.PRIVATE_KEY.startsWith("0x")

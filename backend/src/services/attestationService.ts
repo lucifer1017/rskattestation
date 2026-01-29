@@ -83,7 +83,6 @@ export async function issueAttestationAndRegister(
   const expirationTime = BigInt(0);
   const revocable = true;
 
-  logger.debug("Sending attestation transaction...");
   const tx = await eas.attest({
     schema: schemaUID,
     data: {
@@ -141,8 +140,6 @@ export async function issueAttestationAndRegister(
     logger.error("Failed to extract attestation transaction hash");
     throw new Error("Failed to extract attestation transaction hash");
   }
-
-  logger.debug("Attestation transaction confirmed:", txHashAttest);
 
   const uid: string = typeof uidResult === "string" ? uidResult : toHexString(uidResult);
 

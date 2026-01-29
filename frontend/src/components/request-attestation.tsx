@@ -85,8 +85,8 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
       await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error("Failed to copy:", error);
+    } catch {
+      // Copy failed (e.g. permission denied); no user feedback needed
     }
   }, []);
 
@@ -306,7 +306,6 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
         />
       </div>
 
-      {/* Error Message */}
       {requestState.status === "error" && (
         <div className="flex items-start gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
           <svg

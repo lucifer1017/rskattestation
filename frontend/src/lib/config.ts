@@ -1,4 +1,3 @@
-// Next.js requires direct access to process.env.NEXT_PUBLIC_* for client-side inlining
 const attestationGateAddress = process.env.NEXT_PUBLIC_ATTESTATION_GATE_ADDRESS;
 const gatedNFTMinterAddress = process.env.NEXT_PUBLIC_GATED_NFT_MINTER_ADDRESS;
 

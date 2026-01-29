@@ -16,13 +16,12 @@ contract GatedVault is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     AttestationGate public attestationGate;
-    bytes32 public requiredSchemaUID; // Schema UID required for access
+    bytes32 public requiredSchemaUID;
     IERC20 public token;
     mapping(address => uint256) public deposits;
-    mapping(address => bool) public hadValidAttestationAtDeposit; // Track if user had valid attestation when depositing
+    mapping(address => bool) public hadValidAttestationAtDeposit;
     uint256 public totalDeposits;
 
-    // Events
     event Deposited(address indexed user, uint256 amount);
     event Withdrawn(address indexed user, uint256 amount);
     event EmergencyWithdrawn(address indexed user, uint256 amount, address indexed admin);
@@ -77,8 +76,7 @@ contract GatedVault is Ownable, ReentrancyGuard {
     function withdraw(uint256 amount) external nonReentrant {
         require(amount > 0, "GatedVault: amount must be greater than 0");
         require(deposits[msg.sender] >= amount, "GatedVault: insufficient balance");
-        
-        // Allow withdrawal if user has current valid attestation OR had valid attestation at deposit time
+
         bool hasCurrentValid = attestationGate.hasValidAttestationOfSchema(msg.sender, requiredSchemaUID);
         bool hadValidAtDeposit = hadValidAttestationAtDeposit[msg.sender];
         require(

@@ -39,9 +39,9 @@ RSK_RPC_URL=https://public-node.testnet.rsk.co
 EAS_CONTRACT_ADDRESS=0xc300aeEaDd60999933468738c9F5D7e9C0671e1c
 
 # AttestationGate Contract (deployed)
-ATTESTATION_GATE_ADDRESS=0xe022df9f57b611675B6b713307E7563D0c9abC74
+ATTESTATION_GATE_ADDRESS=0xe022df9f....YOUR_DEPLOYED_ADDRESS
 
-# Backend Wallet (for signing transactions)
+# Backend wallet (for signing transactions). Use PRIVATE_KEY (same as Hardhat).
 PRIVATE_KEY=your_64_character_hex_private_key_here
 
 # Schema UIDs (register first - see below)
@@ -110,6 +110,11 @@ Returns server status and configuration check.
 
 ### Issue Attestation
 
+The endpoint requires the client to prove ownership of the address by signing a message. The signature and timestamp are validated server-side (5-minute replay window).
+
+**Message to sign:** `Request attestation for <address> at <timestamp>`  
+Use the same `address` and `timestamp` (Unix seconds) you send in the request.
+
 ```http
 POST /attestations/issue
 Content-Type: application/json
@@ -117,14 +122,18 @@ Content-Type: application/json
 {
   "address": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
   "schemaType": "nft",
-  "statement": "User is eligible for gated NFT" // optional
+  "statement": "User is eligible for gated NFT",
+  "signature": "0x...",
+  "timestamp": 1705012345
 }
 ```
 
 **Parameters:**
-- `address` (required): Ethereum address to issue attestation for
+- `address` (required): Ethereum address to issue attestation for (must match signer)
 - `schemaType` (required): `"nft"` or `"vault"`
 - `statement` (optional): Custom statement string
+- `signature` (required): Hex signature of `Request attestation for <address> at <timestamp>`
+- `timestamp` (required): Unix time in seconds; must be within 5 minutes of server time
 
 **Response:**
 ```json
@@ -187,10 +196,9 @@ AttestationService (issueAttestationAndRegister)
    - Add UIDs to `.env` file
 
 2. **Issuing Attestation**:
-   - Client sends request with user address and schema type
-   - Backend uses EAS SDK to issue attestation on RAS
-   - Backend extracts transaction hash from receipt
-   - Backend registers attestation on AttestationGate contract
+   - Client signs `Request attestation for <address> at <timestamp>` and sends address, schema type, signature, and timestamp
+   - Backend verifies signature and timestamp (5-minute window), then issues attestation via EAS SDK on RAS
+   - Backend extracts transaction hash from receipt and registers attestation on AttestationGate
    - Returns both transaction hashes and attestation UID
 
 3. **Checking Status**:
@@ -229,7 +237,7 @@ Registers NFT and Vault schemas on the Schema Registry. Automatically detects te
 | `RSK_RPC_URL` | Yes | Rootstock RPC endpoint |
 | `EAS_CONTRACT_ADDRESS` | Yes | RAS contract address (testnet: `0xc300aeEaDd60999933468738c9F5D7e9C0671e1c`) |
 | `ATTESTATION_GATE_ADDRESS` | Yes | Deployed AttestationGate contract address |
-| `PRIVATE_KEY` | Yes | 64 hex character private key (with or without 0x prefix) |
+| `PRIVATE_KEY` | Yes | Backend wallet private key; 64 hex chars (with or without 0x). Same name as Hardhat config. |
 | `NFT_SCHEMA_UID` | Optional | Schema UID for NFT gating (register first) |
 | `VAULT_SCHEMA_UID` | Optional | Schema UID for vault access (register first) |
 
@@ -259,10 +267,11 @@ Registers NFT and Vault schemas on the Schema Registry. Automatically detects te
 ```
 backend/
 ├── src/
-│   ├── config/        # Environment configuration
-│   ├── contracts/      # Smart contract clients
+│   ├── config/        # Environment configuration (PRIVATE_KEY, etc.)
+│   ├── contracts/     # Smart contract clients
+│   ├── lib/           # Logger and shared utilities
 │   ├── ras/           # RAS (EAS SDK) integration
-│   ├── routes/        # Express route handlers
+│   ├── routes/        # Express route handlers (signature verification on /issue)
 │   ├── services/      # Business logic
 │   └── index.ts       # Server entry point
 ├── scripts/

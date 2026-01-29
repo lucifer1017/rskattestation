@@ -14,13 +14,12 @@ import "./AttestationGate.sol";
  */
 contract GatedNFTMinter is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     AttestationGate public attestationGate;
-    bytes32 public requiredSchemaUID; // Schema UID required for minting
+    bytes32 public requiredSchemaUID;
     uint256 public maxSupply;
     uint256 public currentSupply;
     uint256 public mintPrice;
     mapping(address => bool) public hasMinted;
 
-    // Events
     event NFTMinted(address indexed to, uint256 indexed tokenId, address indexed minter);
     event MintPriceUpdated(uint256 newPrice);
     event RequiredSchemaUpdated(bytes32 newSchemaUID);
@@ -62,7 +61,6 @@ contract GatedNFTMinter is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         require(msg.value >= mintPrice, "GatedNFTMinter: insufficient payment");
         require(!hasMinted[msg.sender], "GatedNFTMinter: already minted");
 
-        // Check attestation via AttestationGate
         require(
             attestationGate.hasValidAttestationOfSchema(msg.sender, requiredSchemaUID),
             "GatedNFTMinter: valid attestation required"
@@ -123,7 +121,6 @@ contract GatedNFTMinter is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         emit RequiredSchemaUpdated(_newSchemaUID);
     }
 
-    // Override required by Solidity
     function tokenURI(
         uint256 tokenId
     ) public view override(ERC721, ERC721URIStorage) returns (string memory) {

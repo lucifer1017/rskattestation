@@ -9,16 +9,16 @@ pragma solidity ^0.8.28;
  */
 interface IEAS {
     struct Attestation {
-        bytes32 uid;                    // Unique identifier
-        bytes32 schema;                 // Schema UID
-        uint64 time;                     // Timestamp when created
-        uint64 expirationTime;           // Expiration timestamp (0 = no expiration)
-        uint64 revocationTime;           // Revocation timestamp (0 = not revoked)
-        bytes32 refUID;                  // Referenced attestation UID
-        address recipient;              // Recipient address
-        address attester;                // Attester address
-        bool revocable;                  // Whether attestation is revocable
-        bytes data;                      // Encoded attestation data
+        bytes32 uid;
+        bytes32 schema;
+        uint64 time;
+        uint64 expirationTime;
+        uint64 revocationTime;
+        bytes32 refUID;
+        address recipient;
+        address attester;
+        bool revocable;
+        bytes data;
     }
 
     /**

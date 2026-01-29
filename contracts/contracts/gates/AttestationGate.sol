@@ -11,19 +11,13 @@ import "../libraries/RASConstants.sol";
  * @dev Provides token-gating functionality by checking RAS attestations
  */
 contract AttestationGate is Ownable {
-    IEAS public eas; // EAS/RAS contract instance
-    address public easAddress; // EAS contract address
+    IEAS public eas;
+    address public easAddress;
 
-    // Mapping: user address => attestation UID
     mapping(address => bytes32) public userAttestations;
-
-    // Mapping: user address => schema UID => attestation UID
     mapping(address => mapping(bytes32 => bytes32)) public userSchemaAttestations;
-
-    // Mapping: attester address => is authorized
     mapping(address => bool) public authorizedAttesters;
 
-    // Events
     event AttestationRegistered(
         address indexed user,
         bytes32 indexed attestationUID,
@@ -84,7 +78,6 @@ contract AttestationGate is Ownable {
             "AttestationGate: attestation expired"
         );
 
-        // Register attestation (overwrites existing if any - this is intentional for renewals)
         userAttestations[user] = attestationUID;
         userSchemaAttestations[user][schemaUID] = attestationUID;
 
@@ -99,7 +92,6 @@ contract AttestationGate is Ownable {
         bytes32 uid = userAttestations[user];
         require(uid != bytes32(0), "AttestationGate: no attestation found");
 
-        // Verify attestation is invalid
         IEAS.Attestation memory attestation = eas.getAttestation(uid);
         bool isInvalid =
             attestation.revocationTime != 0 ||

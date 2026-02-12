@@ -46,12 +46,33 @@ RSK_MAINNET_RPC_URL=https://public-node.rsk.co
 
 ## Deployment Instructions
 
-### Step 1: Deploy AttestationGate
+### Step 1: Deploy (or reuse) AttestationGate
 
 **What it does:** Registry contract that maps user addresses to attestation UIDs and validates RAS attestations.
 
+Ignition keeps track of what was already deployed under a given module name.  
+If you re-run a deployment with a different deployer or changed parameters, you will see a **“reconciliation failed”** error like:
+
+> AttestationGateModule#AttestationGate: From account has been changed from 0x... to 0x...
+
+This just means Ignition is protecting you from accidentally mutating an existing deployment.
+
+**Recommended flow (fresh project / first deploy):**
+
 ```bash
 npx hardhat ignition deploy ignition/modules/AttestationGate.ts \
+  --network rskTestnet \
+  --parameters '{"AttestationGateModule":{"easAddress":"0xc300aeEaDd60999933468738c9F5D7e9C0671e1c"}}'
+```
+
+**If a deployment already exists** (see `ignition/deployments/chain-31/deployed_addresses.json`), you have two options:
+
+- **Reuse it**: just copy the existing address from `deployed_addresses.json` and skip redeploying AttestationGate.
+- **Deploy a fresh instance**: give Ignition a new deployment id so it doesn’t try to reconcile with the old one, e.g.:
+
+```bash
+npx hardhat ignition deploy ignition/modules/AttestationGate.ts \
+  --deployment-id AttestationGate-$(date +%s) \
   --network rskTestnet \
   --parameters '{"AttestationGateModule":{"easAddress":"0xc300aeEaDd60999933468738c9F5D7e9C0671e1c"}}'
 ```
@@ -61,7 +82,7 @@ npx hardhat ignition deploy ignition/modules/AttestationGate.ts \
   - Testnet: `0xc300aeEaDd60999933468738c9F5D7e9C0671e1c`
   - Mainnet: `0x54C0726E9d2D57Bc37AD52c7E219A3229e0eE963`
 
-**Save the deployed address** - you'll need it for the next steps!
+**Save the deployed address** - you'll need it for the next steps (backend + frontend).
 
 ### Step 2: Register Schemas (Backend)
 

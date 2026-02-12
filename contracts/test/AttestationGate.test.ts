@@ -21,6 +21,15 @@ describe("AttestationGate", async function () {
     attestationGate = await viem.deployContract("AttestationGate", [
       mockEAS.address,
     ]);
+
+    // Authorize the test attester address on AttestationGate
+    // All tests rely on attestations created by `attester`, and
+    // the contract now requires `authorizedAttesters[attester] == true`
+    // for registration to succeed.
+    await attestationGate.write.setAuthorizedAttester([
+      attester.account.address,
+      true,
+    ]);
   });
 
   describe("Constructor", function () {

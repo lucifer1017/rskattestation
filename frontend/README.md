@@ -26,6 +26,17 @@ This frontend provides a user-friendly interface to:
 npm install
 ```
 
+On Linux, if you previously saw an error like:
+
+- `error ... utf-8-validate: Command failed`
+- `Error: spawn node-gyp ENOENT`
+
+this repository now includes a local `node-gyp` devDependency, so a global `node-gyp` is no longer required.  
+You still need a basic build toolchain (C/C++ compiler, Python) installed:
+
+- **Debian/Ubuntu**: `sudo apt-get install build-essential python3`
+- **Fedora**: `sudo dnf install @development-tools python3`
+
 ### 2. Configure Environment
 
 Create a `.env.local` file in the `frontend/` directory (see `.env.example`):

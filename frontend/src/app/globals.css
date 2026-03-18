@@ -17,13 +17,12 @@
   --rootstock-gray-500: #666666;
 
   /* Theme Colors */
-  --background: #000000;
-  --background-gradient: linear-gradient(180deg, #000000 0%, #0a0a0a 100%);
+  --background: #0b0b0b;
   --foreground: #ffffff;
-  --card-bg: #0f0f0f;
-  --card-bg-hover: #1a1a1a;
-  --card-border: rgba(255, 255, 255, 0.1);
-  --card-border-hover: rgba(0, 170, 68, 0.5);
+  --card-bg: #101010;
+  --card-bg-hover: #141414;
+  --card-border: rgba(255, 255, 255, 0.14);
+  --card-border-hover: rgba(255, 255, 255, 0.22);
   --accent-primary: var(--rootstock-green);
   --accent-secondary: var(--rootstock-orange);
   --text-muted: rgba(255, 255, 255, 0.6);

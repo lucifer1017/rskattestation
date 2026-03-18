@@ -127,7 +127,7 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
           </div>
         </div>
 
-        <div className="space-y-3 bg-rootstock-gray-800/50 rounded-xl p-4 border border-rootstock-gray-700">
+        <div className="space-y-3 bg-card-bg rounded-xl p-4 border border-card-border">
           <div className="flex justify-between items-center gap-3">
             <span className="text-sm text-white/60 shrink-0">Attestation UID</span>
             <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -136,7 +136,7 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
               </code>
               <button
                 onClick={() => copyToClipboard(requestState.data.uid)}
-                className="shrink-0 px-2 py-1 bg-rootstock-gray-700 hover:bg-rootstock-gray-600 border border-rootstock-gray-600 rounded text-white/80 hover:text-white transition-colors text-xs font-medium"
+                className="shrink-0 px-2 py-1 bg-black/20 hover:bg-black/35 border border-white/10 rounded text-white/70 hover:text-white transition-colors text-xs font-medium"
                 title="Copy to clipboard"
               >
                 {copied ? (
@@ -215,7 +215,7 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
 
         <button
           onClick={resetForm}
-          className="w-full py-3 px-4 bg-rootstock-gray-800 hover:bg-rootstock-gray-700 text-white rounded-xl font-medium transition-colors border border-rootstock-gray-700"
+          className="w-full py-2.5 px-4 bg-black/20 hover:bg-black/35 text-white/80 hover:text-white rounded-xl font-medium transition-colors border border-white/10"
         >
           Request Another Attestation
         </button>
@@ -229,7 +229,7 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
         <label className="block text-sm font-medium text-white/80">
           Wallet Address
         </label>
-        <div className="px-4 py-3 bg-rootstock-gray-800/50 border border-rootstock-gray-700 rounded-xl text-white/60 font-mono text-sm truncate">
+        <div className="px-4 py-3 bg-card-bg border border-card-border rounded-xl text-white/60 font-mono text-sm truncate">
           {address}
         </div>
       </div>
@@ -246,8 +246,8 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
             disabled={requestState.status === "loading"}
             className={`py-3 px-4 rounded-xl font-medium transition-all border ${
               schemaType === "nft"
-                ? "bg-rootstock-green/20 border-rootstock-green text-rootstock-green-light"
-                : "bg-rootstock-gray-800/50 border-rootstock-gray-700 text-white/60 hover:border-rootstock-gray-600"
+                ? "bg-rootstock-green/15 border-rootstock-green/40 text-rootstock-green-light"
+                : "bg-card-bg border-card-border text-white/60 hover:border-white/20"
             } disabled:opacity-50`}
           >
             <div className="flex items-center justify-center gap-2">
@@ -273,8 +273,8 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
             disabled={requestState.status === "loading"}
             className={`py-3 px-4 rounded-xl font-medium transition-all border ${
               schemaType === "vault"
-                ? "bg-rootstock-orange/20 border-rootstock-orange text-rootstock-orange-light"
-                : "bg-rootstock-gray-800/50 border-rootstock-gray-700 text-white/60 hover:border-rootstock-gray-600"
+                ? "bg-rootstock-orange/15 border-rootstock-orange/40 text-rootstock-orange-light"
+                : "bg-card-bg border-card-border text-white/60 hover:border-white/20"
             } disabled:opacity-50`}
           >
             <div className="flex items-center justify-center gap-2">
@@ -313,7 +313,7 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
           disabled={requestState.status === "loading"}
           placeholder="Add a custom statement for your attestation..."
           rows={3}
-          className="w-full px-4 py-3 bg-rootstock-gray-800/50 border border-rootstock-gray-700 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-rootstock-green/50 focus:ring-1 focus:ring-rootstock-green/50 transition-all resize-none disabled:opacity-50"
+          className="w-full px-4 py-3 bg-card-bg border border-card-border rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-white/25 focus:ring-1 focus:ring-white/10 transition-all resize-none disabled:opacity-50"
         />
       </div>
 
@@ -363,7 +363,7 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
       <button
         type="submit"
         disabled={requestState.status === "loading"}
-  className="w-full py-3.5 px-4 bg-linear-to-r from-rootstock-green to-rootstock-green-light text-black rounded-xl font-semibold hover:from-rootstock-green-light hover:to-rootstock-green shadow-lg shadow-rootstock-green/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+        className="w-full py-3 px-4 bg-white hover:bg-gray-200 text-black rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
       >
         {requestState.status === "loading" ? (
           <>

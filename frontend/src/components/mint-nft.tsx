@@ -218,7 +218,7 @@ export function MintNFT({ refreshToken }: MintNFTProps) {
 
     return (
       <div className="space-y-4">
-        <div className="p-4 bg-rootstock-gray-800/50 rounded-xl border border-rootstock-gray-700 space-y-3">
+        <div className="p-4 bg-card-bg rounded-xl border border-card-border space-y-3">
           <div className="flex justify-between items-center text-sm">
             <span className="text-white/60">Mint Price</span>
             <span className="text-white font-mono">
@@ -348,7 +348,7 @@ export function MintNFT({ refreshToken }: MintNFTProps) {
         <button
           onClick={handleMint}
           disabled={!canMint || isSoldOut || isMintPending || isConfirming}
-          className="w-full py-3.5 px-4 bg-linear-to-r from-rootstock-green to-rootstock-green-light text-black rounded-xl font-semibold hover:from-rootstock-green-light hover:to-rootstock-green shadow-lg shadow-rootstock-green/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+          className="w-full py-3 px-4 bg-white hover:bg-gray-200 text-black rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
         >
           {isMintPending || isConfirming ? (
             <>
@@ -400,7 +400,7 @@ export function MintNFT({ refreshToken }: MintNFTProps) {
             refetchBalance();
             checkAttestation();
           }}
-          className="w-full py-2 px-4 bg-rootstock-gray-800 hover:bg-rootstock-gray-700 text-white rounded-xl font-medium transition-colors border border-rootstock-gray-700 text-sm"
+          className="w-full py-2.5 px-4 bg-black/20 hover:bg-black/35 text-white/80 hover:text-white rounded-xl font-medium transition-colors border border-white/10 text-sm"
         >
           Refresh Status
         </button>

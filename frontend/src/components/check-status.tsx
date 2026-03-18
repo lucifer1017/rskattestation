@@ -77,8 +77,8 @@ export function CheckStatus({ refreshToken }: CheckStatusProps) {
             disabled={statusState.status === "loading"}
             className={`py-2.5 px-4 rounded-xl font-medium transition-all border text-sm ${
               schemaType === "nft"
-                ? "bg-rootstock-green/20 border-rootstock-green text-rootstock-green-light"
-                : "bg-rootstock-gray-800/50 border-rootstock-gray-700 text-white/60 hover:border-rootstock-gray-600"
+                ? "bg-rootstock-green/15 border-rootstock-green/40 text-rootstock-green-light"
+                : "bg-card-bg border-card-border text-white/60 hover:border-white/20"
             } disabled:opacity-50`}
           >
             NFT Gating
@@ -89,8 +89,8 @@ export function CheckStatus({ refreshToken }: CheckStatusProps) {
             disabled={statusState.status === "loading"}
             className={`py-2.5 px-4 rounded-xl font-medium transition-all border text-sm ${
               schemaType === "vault"
-                ? "bg-rootstock-orange/20 border-rootstock-orange text-rootstock-orange-light"
-                : "bg-rootstock-gray-800/50 border-rootstock-gray-700 text-white/60 hover:border-rootstock-gray-600"
+                ? "bg-rootstock-orange/15 border-rootstock-orange/40 text-rootstock-orange-light"
+                : "bg-card-bg border-card-border text-white/60 hover:border-white/20"
             } disabled:opacity-50`}
           >
             Vault Access
@@ -129,7 +129,7 @@ export function CheckStatus({ refreshToken }: CheckStatusProps) {
             className={`p-6 rounded-xl border ${
               statusState.hasValid
                 ? "bg-rootstock-green/10 border-rootstock-green/30"
-                : "bg-rootstock-gray-800/50 border-rootstock-gray-700"
+                : "bg-card-bg border-card-border"
             }`}
           >
             <div className="flex items-center gap-4">
@@ -137,7 +137,7 @@ export function CheckStatus({ refreshToken }: CheckStatusProps) {
                 className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                   statusState.hasValid
                     ? "bg-rootstock-green/20"
-                    : "bg-rootstock-gray-700"
+                    : "bg-black/20 border border-white/10"
                 }`}
               >
                 {statusState.hasValid ? (
@@ -187,7 +187,7 @@ export function CheckStatus({ refreshToken }: CheckStatusProps) {
 
           <button
             onClick={checkStatus}
-            className="w-full py-2.5 px-4 bg-rootstock-gray-800 hover:bg-rootstock-gray-700 text-white rounded-xl font-medium transition-colors border border-rootstock-gray-700 text-sm"
+            className="w-full py-2.5 px-4 bg-black/20 hover:bg-black/35 text-white/80 hover:text-white rounded-xl font-medium transition-colors border border-white/10 text-sm"
           >
             Refresh Status
           </button>

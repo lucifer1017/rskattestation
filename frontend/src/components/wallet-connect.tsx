@@ -11,13 +11,13 @@ export function WalletConnect() {
   if (isConnected && address) {
     return (
       <div className="flex items-center gap-2">
-        <div className="px-3 py-1.5 bg-rootstock-green/10 border border-rootstock-green/25 text-rootstock-green rounded-lg font-mono text-sm flex items-center gap-2">
+        <div className="px-3 py-1.5 bg-white/5 border border-white/10 text-white/80 rounded-full font-mono text-sm flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-rootstock-green rounded-full"></span>
           {formatAddress(address)}
         </div>
         <button
           onClick={() => disconnect()}
-          className="px-3 py-1.5 border border-white/10 text-white/50 rounded-lg text-sm font-medium hover:border-white/20 hover:text-white/80 transition-colors"
+          className="px-3 py-1.5 border border-white/10 text-white/60 rounded-full text-sm font-medium hover:border-white/20 hover:text-white/80 transition-colors"
         >
           Disconnect
         </button>
@@ -68,7 +68,7 @@ export function WalletConnect() {
     <button
       onClick={() => connect({ connector: connectorToUse })}
       disabled={isPending}
-      className="px-4 py-1.5 bg-rootstock-green hover:bg-rootstock-green-light text-black rounded-lg text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      className="px-4 py-2 bg-white hover:bg-gray-200 text-black rounded-full text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
     >
       {isPending ? "Connecting..." : buttonText}
     </button>

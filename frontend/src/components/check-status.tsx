@@ -10,7 +10,11 @@ type StatusState =
   | { status: "success"; hasValid: boolean; schemaType: SchemaType }
   | { status: "error"; message: string };
 
-export function CheckStatus() {
+interface CheckStatusProps {
+  refreshToken?: number;
+}
+
+export function CheckStatus({ refreshToken }: CheckStatusProps) {
   const { address, isConnected } = useAccount();
   const [schemaType, setSchemaType] = useState<SchemaType>("nft");
   const [statusState, setStatusState] = useState<StatusState>({
@@ -50,7 +54,7 @@ export function CheckStatus() {
     } else {
       setStatusState({ status: "idle" });
     }
-  }, [isConnected, address, schemaType, checkStatus]);
+  }, [isConnected, address, schemaType, checkStatus, refreshToken]);
 
   if (!isConnected) {
     return (

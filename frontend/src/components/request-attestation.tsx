@@ -175,6 +175,17 @@ export function RequestAttestation({ onSuccess }: RequestAttestationProps) {
             </div>
           </div>
           <div className="flex justify-between items-center">
+            <span className="text-sm text-white/60">Attestation</span>
+            <a
+              href={`https://explorer.testnet.rootstock.io/ras/attestation/${requestState.data.uid}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-rootstock-orange hover:text-rootstock-orange-light transition-colors"
+            >
+              View on Explorer →
+            </a>
+          </div>
+          <div className="flex justify-between items-center">
             <span className="text-sm text-white/60">Attest TX</span>
             {requestState.data.txHashAttest && requestState.data.txHashAttest !== "0x0" ? (
               <a

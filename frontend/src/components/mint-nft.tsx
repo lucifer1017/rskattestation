@@ -6,7 +6,11 @@ import { formatEther } from "viem";
 import { CONTRACT_ADDRESSES, GATED_NFT_MINTER_ABI } from "@/lib/contracts";
 import { getAttestationStatus, BackendUnreachableError } from "@/lib/api";
 
-export function MintNFT() {
+interface MintNFTProps {
+  refreshToken?: number;
+}
+
+export function MintNFT({ refreshToken }: MintNFTProps) {
   const { address, isConnected } = useAccount();
   const [userError, setUserError] = useState<string | null>(null);
   const [successDismissed, setSuccessDismissed] = useState(false);
@@ -90,7 +94,7 @@ export function MintNFT() {
     if (isConnected && address) {
       queueMicrotask(() => checkAttestation());
     }
-  }, [isConnected, address, checkAttestation]);
+  }, [isConnected, address, checkAttestation, refreshToken]);
 
   // Refetch contract data when mint tx confirms (no setState in effect)
   useEffect(() => {
@@ -344,7 +348,7 @@ export function MintNFT() {
         <button
           onClick={handleMint}
           disabled={!canMint || isSoldOut || isMintPending || isConfirming}
-          className="w-full py-3.5 px-4 bg-gradient-to-r from-rootstock-green to-rootstock-green-light text-black rounded-xl font-semibold hover:from-rootstock-green-light hover:to-rootstock-green shadow-lg shadow-rootstock-green/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+          className="w-full py-3.5 px-4 bg-linear-to-r from-rootstock-green to-rootstock-green-light text-black rounded-xl font-semibold hover:from-rootstock-green-light hover:to-rootstock-green shadow-lg shadow-rootstock-green/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
         >
           {isMintPending || isConfirming ? (
             <>
